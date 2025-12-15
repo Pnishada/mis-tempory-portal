@@ -1740,4 +1740,211 @@ export const fetchAvailableBatches = async (): Promise<BatchType[]> => {
   return res.data;
 };
 
+/* ========== GRADUATED STUDENTS API ========== */
+export interface GraduatedStudentType {
+  id: number;
+  student_id?: number;
+  student_details?: {
+    id: number;
+    registration_no: string;
+    full_name_english: string;
+    name_with_initials: string;
+    nic_id: string;
+    mobile_no: string;
+    email: string;
+    district: string;
+    divisional_secretariat: string;
+    village: string;
+    address_line: string;
+    center: number | null;
+    center_name: string;
+    course: number | null;
+    course_name: string;
+    batch: number | null;
+    batch_name: string;
+    registration_year: string;
+    enrollment_status: string;
+  };
+  graduate_education: string | null;
+  workplace: string | null;
+  job_description: string | null;
+  is_complete: boolean;
+  has_education: boolean;
+  has_workplace: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GraduatedStudentListType {
+  id: number; // This is the GraduatedStudent ID
+  student_id: number; // This is the Student ID
+  // Student identification
+  registration_no: string;
+  district_code?: string;
+  course_code?: string;
+  batch?: number | null;
+  batch_code?: string;
+  batch_display?: string;
+  batch_name?: string;
+  batch_year?: string;
+  student_number?: number;
+  registration_year?: string;
+  // Personal information
+  full_name_english: string;
+  full_name_sinhala?: string;
+  name_with_initials?: string;
+  gender?: string;
+  date_of_birth?: string;
+  nic_id?: string;
+  // Address
+  address_line?: string;
+  district: string;
+  divisional_secretariat?: string;
+  grama_niladhari_division?: string;
+  village?: string;
+  marital_status?: string;
+  // Contact
+  mobile_no: string;
+  email?: string;
+  // Training
+  training_received?: boolean;
+  training_provider?: string;
+  course_vocation_name?: string;
+  training_duration?: string;
+  training_nature?: string;
+  training_establishment?: string;
+  training_placement_preference?: string;
+  // Center and course
+  center?: number | null;
+  center_name?: string | null;
+  course?: number | null;
+  course_name?: string | null;
+  // Enrollment
+  enrollment_date?: string;
+  enrollment_status?: string;
+  date_of_application?: string;
+  // Profile
+  profile_photo_url?: string | null;
+  ol_results?: EducationalQualificationType[];
+  al_results?: EducationalQualificationType[];
+  // Graduation details
+  graduate_education: string | null;
+  workplace: string | null;
+  job_description: string | null;
+  is_complete: boolean;
+  has_education: boolean;
+  has_workplace: boolean;
+}
+
+export interface GraduatedStudentStats {
+  total: number;
+  with_education: number;
+  with_workplace: number;
+  complete: number;
+  incomplete: number;
+}
+
+// Student basic type matching StudentBasicSerializer
+export interface CompletedStudentType {
+  id: number;
+  registration_no: string;
+  district_code?: string;
+  course_code?: string;
+  batch?: number | null;
+  batch_code?: string | null;
+  batch_display?: string | null;
+  batch_name?: string | null;
+  batch_year?: string | null;
+  student_number?: number;
+  registration_year?: string | null;
+  full_name_english: string;
+  full_name_sinhala?: string | null;
+  name_with_initials?: string | null;
+  gender?: string | null;
+  date_of_birth?: string | null;
+  nic_id?: string | null;
+  address_line?: string | null;
+  district: string;
+  divisional_secretariat?: string | null;
+  grama_niladhari_division?: string | null;
+  village?: string | null;
+  marital_status?: string | null;
+  mobile_no: string;
+  email?: string | null;
+  training_received?: boolean;
+  training_provider?: string | null;
+  course_vocation_name?: string | null;
+  training_duration?: string | null;
+  training_nature?: string | null;
+  training_establishment?: string | null;
+  training_placement_preference?: string | null;
+  center?: number | null;
+  center_name?: string | null;
+  course?: number | null;
+  course_name?: string | null;
+  enrollment_date?: string;
+  enrollment_status?: string;
+  date_of_application?: string;
+  profile_photo_url?: string | null;
+  ol_results?: EducationalQualificationType[];
+  al_results?: EducationalQualificationType[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Fetch all graduated students
+export const fetchGraduatedStudents = async (params?: {
+  search?: string;
+  student__course?: number;
+  student__center?: number;
+  student__district?: string;
+  student__registration_year?: string;
+}): Promise<GraduatedStudentListType[]> => {
+  const res = await api.get("/api/graduated/students/", { params });
+  return res.data;
+};
+
+
+
+// Create new graduated student record
+export const createGraduatedStudent = async (data: {
+  student_id: number;
+  graduate_education?: string;
+  workplace?: string;
+  job_description?: string;
+}): Promise<GraduatedStudentType> => {
+  const res = await api.post("/api/graduated/students/", data);
+  return res.data;
+};
+
+// Update graduated student information
+export const updateGraduatedStudent = async (
+  id: number,
+  data: {
+    graduate_education?: string;
+    workplace?: string;
+    job_description?: string;
+  }
+): Promise<GraduatedStudentType> => {
+  const res = await api.patch(`/api/graduated/students/${id}/`, data);
+  return res.data;
+};
+
+// Delete graduated student record
+export const deleteGraduatedStudent = async (id: number): Promise<void> => {
+  await api.delete(`/api/graduated/students/${id}/`);
+};
+
+// Get graduated students statistics
+export const fetchGraduatedStudentStats = async (): Promise<GraduatedStudentStats> => {
+  const res = await api.get("/api/graduated/students/statistics/");
+  return res.data;
+};
+
+// Get list of completed students eligible for graduation tracking
+export const fetchCompletedStudents = async (): Promise<CompletedStudentType[]> => {
+  const res = await api.get("/api/graduated/students/completed_students/");
+  return res.data;
+};
+
 export default api;

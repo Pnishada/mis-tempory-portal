@@ -29,6 +29,7 @@ import TrainingOfficerReports from "../TrainingOfficerDashboard/TrainingOfficerR
 // DATA ENTRY
 import DataEntryStudents from "../DataEntryDashboard/DataEntryStudents";
 import DataEntryOverview from "../DataEntryDashboard/DataEntryOverview";
+import DataEntryGraduatedStudents from "../DataEntryDashboard/DataEntryGraduatedStudents";
 
 // INSTRUCTOR
 import InstructorOverview from "../InstructorDashboard/InstructorOverview";
@@ -108,6 +109,7 @@ const Dashboard = () => {
     if (role === "data_entry") {
       if (p === "/dashboard/data-entry") return <DataEntryStudents />;
       if (p === "/dashboard/data-entry/overview") return <DataEntryOverview />;
+      if (p === "/dashboard/data-entry/graduated-students") return <DataEntryGraduatedStudents />;
     }
 
     // INSTRUCTOR

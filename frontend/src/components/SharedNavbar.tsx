@@ -49,7 +49,8 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
       case 'data_entry':
         return [
           { path: '/dashboard/data-entry/overview', label: 'Overview', icon: '📊' },
-          { path: '/dashboard/data-entry', label: 'Students', icon: '👨‍🎓' }
+          { path: '/dashboard/data-entry', label: 'Students', icon: '👨‍🎓' },
+          { path: '/dashboard/data-entry/graduated-students', label: 'Graduated Students', icon: '🎓' },
         ];
       case 'instructor':
         return [
@@ -117,8 +118,8 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
               key={item.path}
               to={item.path}
               className={`flex items-center px-3 py-3 rounded-lg text-sm font-medium transition-colors group ${location.pathname === item.path
-                  ? 'text-green-600 bg-green-50 border-r-2 border-green-600'
-                  : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                ? 'text-green-600 bg-green-50 border-r-2 border-green-600'
+                : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
                 } ${isSidebarCollapsed ? 'justify-center' : ''}`}
               title={isSidebarCollapsed ? item.label : ''}
             >
@@ -200,8 +201,8 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
                   key={item.path}
                   to={item.path}
                   className={`flex items-center px-3 py-2 rounded-md text-base font-medium transition-colors ${location.pathname === item.path
-                      ? 'text-green-600 bg-green-50'
-                      : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
+                    ? 'text-green-600 bg-green-50'
+                    : 'text-gray-700 hover:text-green-600 hover:bg-gray-50'
                     }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
