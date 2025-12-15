@@ -1461,8 +1461,8 @@ export const fetchTrainingOfficerReports = async (period?: string): Promise<Trai
 
 export const exportTrainingReport = async (
   format: 'pdf' | 'excel',
-  period: string,
-  reportType: string = 'comprehensive'
+  period: 'weekly' | 'monthly' | 'quarterly' | 'custom' | string,
+  reportType: 'summary' | 'detailed' | 'performance' | 'comprehensive' | 'students' | 'graduated' | string = 'comprehensive'
 ): Promise<Blob> => {
   const params = {
     format,
@@ -1532,7 +1532,7 @@ export const fetchHeadOfficeReports = async (): Promise<HeadOfficeReportType> =>
 export const exportHeadOfficeReport = async (
   format: 'pdf' | 'excel',
   period: 'weekly' | 'monthly' | 'quarterly' | 'custom',
-  report_type: 'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors',
+  report_type: 'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors' | 'students' | 'graduated',
   options?: {
     start_date?: string;
     end_date?: string;
@@ -1602,7 +1602,7 @@ export const fetchDistrictReports = async (): Promise<DistrictReportType> => {
 export const exportDistrictReport = async (
   format: 'pdf' | 'excel',
   period: 'weekly' | 'monthly' | 'quarterly' | 'custom',
-  report_type: 'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive',
+  report_type: 'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive' | 'students' | 'graduated',
   options?: {
     start_date?: string;
     end_date?: string;

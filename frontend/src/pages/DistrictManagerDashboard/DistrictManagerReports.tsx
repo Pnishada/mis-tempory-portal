@@ -1,24 +1,24 @@
 // DistrictManagerReports.tsx - FIXED TS ERRORS + REAL INTEGRATION
 import React, { useState, useEffect } from 'react';
-import { 
-  Download, 
-  Users, 
-  BookOpen, 
-  TrendingUp, 
+import {
+  Download,
+  Users,
+  BookOpen,
+  TrendingUp,
   Building2,
   CheckCircle,
   RefreshCw,
   AlertCircle,
-  FileText, 
-  Table 
+  FileText,
+  Table
 } from 'lucide-react';
-import { 
-  fetchDistrictReports, 
-  exportDistrictReport, 
+import {
+  fetchDistrictReports,
+  exportDistrictReport,
   canAccessDistrictReports,
   getUserRole,
   getUserDistrict,
-  type DistrictReportType 
+  type DistrictReportType
 } from '../../api/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -33,7 +33,7 @@ const ExportModal = ({
   onExport: (options: {
     format: 'pdf' | 'excel';
     period: 'weekly' | 'monthly' | 'quarterly' | 'custom';
-    reportType: 'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive';
+    reportType: 'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive' | 'students' | 'graduated';
     startDate?: string;
     endDate?: string;
     includeCenters: boolean;
@@ -44,18 +44,14 @@ const ExportModal = ({
 }): React.ReactElement | null => { // FIXED: Changed from ReactNode to ReactElement | null
   const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
   const [period, setPeriod] = useState<'weekly' | 'monthly' | 'quarterly' | 'custom'>('monthly');
-  const [reportType, setReportType] = useState<'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive'>('comprehensive');
+  const [reportType, setReportType] = useState<'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive' | 'students' | 'graduated'>('comprehensive');
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
-  const [includeOptions, setIncludeOptions] = useState({
-    includeCenters: true,
-    includeCourses: true,
-    includeUsers: true,
-    includeApprovals: true
-  });
   const [isExporting, setIsExporting] = useState(false);
+
+
 
   if (!isOpen) return null;
 
@@ -68,7 +64,10 @@ const ExportModal = ({
         reportType,
         startDate: period === 'custom' ? dateRange.start : undefined,
         endDate: period === 'custom' ? dateRange.end : undefined,
-        ...includeOptions
+        includeCenters: true,
+        includeCourses: true,
+        includeUsers: true,
+        includeApprovals: true
       });
       onClose();
     } catch (error) {
@@ -105,18 +104,15 @@ const ExportModal = ({
             <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => setFormat('pdf')}
-                className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
-                  format === 'pdf'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${format === 'pdf'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <FileText className={`w-8 h-8 mb-2 ${
-                  format === 'pdf' ? 'text-blue-600' : 'text-gray-400'
-                }`} />
-                <span className={`font-medium ${
-                  format === 'pdf' ? 'text-blue-900' : 'text-gray-700'
-                }`}>
+                <FileText className={`w-8 h-8 mb-2 ${format === 'pdf' ? 'text-blue-600' : 'text-gray-400'
+                  }`} />
+                <span className={`font-medium ${format === 'pdf' ? 'text-blue-900' : 'text-gray-700'
+                  }`}>
                   PDF
                 </span>
                 <span className="text-xs text-gray-500 mt-1">Document</span>
@@ -124,18 +120,15 @@ const ExportModal = ({
 
               <button
                 onClick={() => setFormat('excel')}
-                className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${
-                  format === 'excel'
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center p-4 border-2 rounded-lg transition-all ${format === 'excel'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <Table className={`w-8 h-8 mb-2 ${
-                  format === 'excel' ? 'text-green-600' : 'text-gray-400'
-                }`} />
-                <span className={`font-medium ${
-                  format === 'excel' ? 'text-green-900' : 'text-gray-700'
-                }`}>
+                <Table className={`w-8 h-8 mb-2 ${format === 'excel' ? 'text-green-600' : 'text-gray-400'
+                  }`} />
+                <span className={`font-medium ${format === 'excel' ? 'text-green-900' : 'text-gray-700'
+                  }`}>
                   Excel
                 </span>
                 <span className="text-xs text-gray-500 mt-1">Spreadsheet</span>
@@ -158,6 +151,8 @@ const ExportModal = ({
               <option value="courses">Courses Report</option>
               <option value="users">Users Report</option>
               <option value="approvals">Approvals Report</option>
+              <option value="students">Students Report</option>
+              <option value="graduated">Graduated Students Report</option>
             </select>
           </div>
 
@@ -201,53 +196,7 @@ const ExportModal = ({
             )}
           </div>
 
-          {/* Include Options */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-3">
-              Include in Report
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeCenters}
-                  onChange={(e) => setIncludeOptions(prev => ({ ...prev, includeCenters: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Centers Data</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeCourses}
-                  onChange={(e) => setIncludeOptions(prev => ({ ...prev, includeCourses: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Courses Data</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeUsers}
-                  onChange={(e) => setIncludeOptions(prev => ({ ...prev, includeUsers: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Users Data</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeApprovals}
-                  onChange={(e) => setIncludeOptions(prev => ({ ...prev, includeApprovals: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Approvals Data</span>
-              </label>
-            </div>
-          </div>
+
 
           {/* Format Info */}
           <div className="bg-gray-50 rounded-lg p-4">
@@ -255,7 +204,7 @@ const ExportModal = ({
               {format === 'pdf' ? 'PDF District Report' : 'Excel District Report'}
             </h4>
             <p className="text-sm text-gray-600">
-              {format === 'pdf' 
+              {format === 'pdf'
                 ? 'Comprehensive district report with centers, courses, users, and approvals data. Suitable for district-level analysis.'
                 : 'Detailed spreadsheet with district data for further analysis and management.'
               }
@@ -274,13 +223,12 @@ const ExportModal = ({
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
-              isExporting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : format === 'pdf'
+            className={`flex items-center space-x-2 px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${isExporting
+              ? 'bg-gray-400 cursor-not-allowed'
+              : format === 'pdf'
                 ? 'bg-blue-600 hover:bg-blue-700'
                 : 'bg-green-600 hover:bg-green-700'
-            }`}
+              }`}
           >
             {isExporting ? (
               <>
@@ -368,7 +316,7 @@ const DistrictManagerReports: React.FC = () => {
       setLoading(true);
       setError(null);
       setRefreshing(true);
-      
+
       const data = await fetchDistrictReports();
       setReportData(data);
     } catch (err: any) {
@@ -383,7 +331,7 @@ const DistrictManagerReports: React.FC = () => {
   const handleExport = async (options: {
     format: 'pdf' | 'excel';
     period: 'weekly' | 'monthly' | 'quarterly' | 'custom';
-    reportType: 'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive';
+    reportType: 'centers' | 'courses' | 'users' | 'approvals' | 'comprehensive' | 'students' | 'graduated';
     startDate?: string;
     endDate?: string;
     includeCenters: boolean;
@@ -393,27 +341,27 @@ const DistrictManagerReports: React.FC = () => {
   }) => {
     try {
       const blob = await exportDistrictReport(
-        options.format, 
-        options.period, 
+        options.format,
+        options.period,
         options.reportType,
         {
           start_date: options.startDate,
           end_date: options.endDate,
-          include_centers: options.includeCenters,
-          include_courses: options.includeCourses,
-          include_users: options.includeUsers,
-          include_approvals: options.includeApprovals
+          include_centers: true,
+          include_courses: true,
+          include_users: true,
+          include_approvals: true
         }
       );
-      
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
-      const periodText = options.period === 'custom' 
+
+      const periodText = options.period === 'custom'
         ? `${options.startDate}_to_${options.endDate}`
         : options.period;
-        
+
       a.download = `district_report_${getUserDistrict()}_${periodText}_${new Date().toISOString().split('T')[0]}.${options.format === 'pdf' ? 'pdf' : 'xlsx'}`;
       document.body.appendChild(a);
       a.click();
@@ -448,9 +396,8 @@ const DistrictManagerReports: React.FC = () => {
             <button
               onClick={loadReportData}
               disabled={refreshing}
-              className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${
-                refreshing ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-600 text-white hover:bg-gray-700'
-              }`}
+              className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-lg transition-colors text-sm font-medium ${refreshing ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-600 text-white hover:bg-gray-700'
+                }`}
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
               <span>{refreshing ? 'Refreshing...' : 'Refresh Data'}</span>
@@ -542,17 +489,17 @@ const DistrictManagerReports: React.FC = () => {
                 <XAxis dataKey="period" />
                 <YAxis />
                 <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="enrollment" 
-                  stroke="#3b82f6" 
+                <Line
+                  type="monotone"
+                  dataKey="enrollment"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   name="Enrollment"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="approvals" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="approvals"
+                  stroke="#10b981"
                   strokeWidth={2}
                   name="Approvals"
                 />
@@ -631,10 +578,9 @@ const DistrictManagerReports: React.FC = () => {
                     <td className="px-4 py-3 text-sm font-medium text-gray-900">{approval.type}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">{approval.name}</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        approval.status === 'Approved' ? 'bg-green-100 text-green-800' :
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${approval.status === 'Approved' ? 'bg-green-100 text-green-800' :
                         'bg-yellow-100 text-yellow-800'
-                      }`}>
+                        }`}>
                         {approval.status}
                       </span>
                     </td>

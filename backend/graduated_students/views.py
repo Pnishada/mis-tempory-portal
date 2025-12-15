@@ -1,9 +1,9 @@
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from .models import GraduatedStudent
-from .serializers import GraduatedStudentSerializer, GraduatedStudentListSerializer
+from .serializers import GraduatedStudentSerializer, GraduatedStudentListSerializer, StudentBasicSerializer
 from students.models import Student
 
 
@@ -11,6 +11,9 @@ class GraduatedStudentViewSet(viewsets.ModelViewSet):
     """
     ViewSet for managing graduated students.
     Provides CRUD operations and filtering capabilities.
+    Role-based access:
+    - Admin (Head Office): view all
+    - District Manager: view only their district
     """
     queryset = GraduatedStudent.objects.select_related(
         'student',
@@ -19,6 +22,7 @@ class GraduatedStudentViewSet(viewsets.ModelViewSet):
         'student__batch'
     ).all()
     serializer_class = GraduatedStudentSerializer
+    permission_classes = [permissions.IsAuthenticated]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['student__course', 'student__center', 'student__district', 'student__registration_year']
     search_fields = [
@@ -30,6 +34,20 @@ class GraduatedStudentViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'updated_at', 'student__registration_no']
     ordering = ['-created_at']
     
+    def get_queryset(self):
+        """
+        Filter queryset based on user role.
+        District Manager -> Only their district
+        Admin/Head Office -> All
+        """
+        user = self.request.user
+        queryset = super().get_queryset()
+        
+        if user.role == 'district_manager' and user.district:
+            return queryset.filter(student__district__iexact=user.district)
+            
+        return queryset
+
     def get_serializer_class(self):
         """Use list serializer for list action, detail serializer for others"""
         if self.action == 'list':
@@ -65,11 +83,13 @@ class GraduatedStudentViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def statistics(self, request):
-        """Get statistics about graduated students"""
-        total = self.queryset.count()
-        with_education = self.queryset.filter(graduate_education__isnull=False).exclude(graduate_education='').count()
-        with_workplace = self.queryset.filter(workplace__isnull=False).exclude(workplace='').count()
-        complete = self.queryset.filter(
+        """Get statistics about graduated students (respecting filters)"""
+        queryset = self.get_queryset() # Use filtered queryset
+        
+        total = queryset.count()
+        with_education = queryset.filter(graduate_education__isnull=False).exclude(graduate_education='').count()
+        with_workplace = queryset.filter(workplace__isnull=False).exclude(workplace='').count()
+        complete = queryset.filter(
             graduate_education__isnull=False,
             workplace__isnull=False
         ).exclude(graduate_education='').exclude(workplace='').count()
@@ -85,13 +105,17 @@ class GraduatedStudentViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def completed_students(self, request):
         """Get list of completed students who are eligible for graduation tracking"""
-        from .serializers import StudentBasicSerializer
+        user = request.user
         
         completed_students = Student.objects.filter(
             enrollment_status='Completed'
         ).exclude(
             graduation_info__isnull=False
         ).select_related('center', 'course', 'batch')
+        
+        # Filter by district for District Managers
+        if user.role == 'district_manager' and user.district:
+            completed_students = completed_students.filter(district__iexact=user.district)
         
         serializer = StudentBasicSerializer(completed_students, many=True, context={'request': request})
         return Response(serializer.data)

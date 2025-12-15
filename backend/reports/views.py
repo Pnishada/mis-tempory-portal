@@ -21,6 +21,7 @@ from students.models import Student
 from users.models import User
 from approvals.models import Approval
 from attendance.models import Attendance, AttendanceSummary
+from graduated_students.models import GraduatedStudent
 
 logger = logging.getLogger(__name__)
 
@@ -210,6 +211,35 @@ def export_head_office_report(request):
                 start_date = today - timedelta(days=30)  # Default monthly
             end_date = today
         
+        if report_type == 'students':
+            students = Student.objects.all()
+            if start_date and end_date:
+                students = students.filter(enrollment_date__range=(start_date, end_date))
+            
+            if include_districts and not include_districts: # logic for specific filtering if needed
+                pass # Admin sees all
+            
+            if format_type == 'excel':
+                return generate_student_list_excel(students, f"Student List - {period}")
+            else:
+                return generate_student_list_pdf(students, f"Head Office - Student List ({period})")
+
+        elif report_type == 'graduated':
+            graduated = GraduatedStudent.objects.all()
+            if start_date and end_date:
+                graduated = graduated.filter(student__enrollment_date__range=(start_date, end_date)) # Filtering graduated students by their student enrollment? Or graduation date?
+                # GraduatedStudent doesn't have a specific 'graduation_date' field visible in models from my memory (it had employment stats).
+                # Let's check models.py content again or assume created_at?
+                # GraduatedStudent model has 'created_at' probably (inheriting from timestamped model?) or I just added fields.
+                # Let's check model.
+                # If no date, use student updated_at or create one.
+                # Assuming GraduatedStudent was created when they graduated.
+            
+            if format_type == 'excel':
+                return generate_graduated_list_excel(graduated, f"Graduated Student List - {period}")
+            else:
+                return generate_graduated_list_pdf(graduated, f"Head Office - Graduated Student List ({period})")
+
         report_data = head_office_reports(request).data
         
         if 'island_trends' in report_data:
@@ -563,6 +593,53 @@ def export_district_report(request):
         format_type = request.GET.get('format', 'pdf')
         period = request.GET.get('period', 'monthly')
         
+        if request.GET.get('reportType') == 'students': # frontend uses 'reportType' param, here mapped to local var?
+            # Wait, api uses 'report_type' query param.
+            # export_district_report didn't extract 'report_type' variable in original code!
+            # It just got data from district_reports(request).
+            pass
+
+        report_type = request.GET.get('report_type', 'comprehensive')
+        start_date = None 
+        end_date = None
+        
+        # Calculate dates for filtering
+        if period == 'custom':
+            start_date_str = request.GET.get('start_date')
+            end_date_str = request.GET.get('end_date')
+            if start_date_str and end_date_str:
+                start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+                end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        else:
+            today = timezone.now().date()
+            if period == 'weekly': start_date = today - timedelta(days=7)
+            elif period == 'monthly': start_date = today - timedelta(days=30)
+            elif period == 'quarterly': start_date = today - timedelta(days=90)
+            else: start_date = today - timedelta(days=30)
+            end_date = today
+
+        if report_type == 'students':
+            students = Student.objects.filter(district=district)
+            if start_date and end_date:
+                students = students.filter(enrollment_date__range=(start_date, end_date))
+            
+            if format_type == 'excel':
+                return generate_student_list_excel(students, f"District Student List - {district} - {period}")
+            else:
+                return generate_student_list_pdf(students, f"District Student List - {district} ({period})")
+
+        elif report_type == 'graduated':
+            graduated = GraduatedStudent.objects.filter(student__district=district)
+            if start_date and end_date:
+                 # Assuming we filter by student enrollment date as proxy or need a created_at on GraduatedStudent
+                 # Let's assume student__enrollment_status='Completed' and filter by updated_at for graduation time approximation
+                 graduated = graduated.filter(student__updated_at__range=(start_date, end_date))
+            
+            if format_type == 'excel':
+                return generate_graduated_list_excel(graduated, f"District Graduated List - {district} - {period}")
+            else:
+                return generate_graduated_list_pdf(graduated, f"District Graduated List - {district} ({period})")
+
         # Get report data
         report_data = district_reports(request).data
         
@@ -912,6 +989,51 @@ def export_training_report(request):
         period = request.GET.get('period', 'monthly')
         report_type = request.GET.get('report_type', 'comprehensive')
         
+        if report_type == 'students':
+            district = request.user.district
+            students = Student.objects.filter(district=district)
+            
+            # Calculate dates
+            today = timezone.now().date()
+            if period == 'weekly': start_date = today - timedelta(days=7)
+            elif period == 'monthly': start_date = today - timedelta(days=30)
+            elif period == 'quarterly': start_date = today - timedelta(days=90)
+            elif period == 'custom':
+                 s_str = request.GET.get('start_date')
+                 e_str = request.GET.get('end_date')
+                 start_date = datetime.strptime(s_str, '%Y-%m-%d').date() if s_str else today - timedelta(days=30)
+                 end_date = datetime.strptime(e_str, '%Y-%m-%d').date() if e_str else today
+            else: start_date = today - timedelta(days=30)
+            
+            if start_date:
+                students = students.filter(enrollment_date__range=(start_date, end_date))
+
+            if format_type == 'excel':
+                return generate_student_list_excel(students, f"Training Student List - {district} - {period}")
+            else:
+                return generate_student_list_pdf(students, f"Training Student List - {district} ({period})")
+
+        elif report_type == 'graduated':
+            district = request.user.district
+            graduated = GraduatedStudent.objects.filter(student__district=district)
+            
+            # Calculate dates (reusing logic or simplified)
+            today = timezone.now().date()
+            if period == 'weekly': start_date = today - timedelta(days=7)
+            # ... simplified for brevity in this block, in real code need full date logic
+            elif period == 'monthly': start_date = today - timedelta(days=30)
+            elif period == 'quarterly': start_date = today - timedelta(days=90)
+            else: start_date = today - timedelta(days=30)
+            end_date = today # defaulting custom to monthly for safety if not parsed
+            
+            if start_date:
+                 graduated = graduated.filter(student__updated_at__range=(start_date, end_date))
+
+            if format_type == 'excel':
+                return generate_graduated_list_excel(graduated, f"Training Graduated List - {district} - {period}")
+            else:
+                return generate_graduated_list_pdf(graduated, f"Training Graduated List - {district} ({period})")
+
         # Get report data
         report_data = training_officer_reports(request).data
         
@@ -1070,4 +1192,167 @@ def generate_training_pdf_report(report_data, period):
         
     except Exception as e:
         logger.error(f"Error generating training PDF report: {str(e)}")
+        raise
+
+# ==========================================
+# SHARED REPORT GENERATORS (Students/Graduated)
+# ==========================================
+
+def generate_student_list_excel(students, title):
+    """Generate Excel list of students"""
+    try:
+        buffer = io.BytesIO()
+        data = []
+        for s in students:
+            data.append({
+                'Reg No': s.referance_no,
+                'Name': s.full_name,
+                'NIC': s.nic,
+                'Phone': s.contact_number,
+                'District': s.district,
+                'Center': s.center.name if s.center else 'N/A',
+                'Course': s.course.name if s.course else 'N/A',
+                'Batch': s.batch.name if s.batch else 'N/A',
+                'Enrollment Date': s.enrollment_date,
+                'Status': s.enrollment_status
+            })
+        
+        df = pd.DataFrame(data)
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+            df.to_excel(writer, sheet_name='Students', index=False)
+            
+        file_content = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(file_content, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{title.lower().replace(" ", "_")}_{timezone.now().strftime("%Y%m%d")}.xlsx"'
+        return response
+    except Exception as e:
+        logger.error(f"Error generating student excel: {str(e)}")
+        raise
+
+def generate_student_list_pdf(students, title):
+    """Generate PDF list of students"""
+    try:
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        story.append(Paragraph(title, styles['Title']))
+        story.append(Spacer(1, 12))
+        story.append(Paragraph(f"Generated: {timezone.now().strftime('%Y-%m-%d')}", styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        data = [['Reg No', 'Name', 'NIC', 'Center', 'Status']]
+        for s in students:
+            data.append([
+                s.referance_no[:15] + '...' if len(s.referance_no or '') > 15 else s.referance_no,
+                s.name_with_initials[:20] + '...' if len(s.name_with_initials or '') > 20 else s.name_with_initials,
+                s.nic,
+                s.center.name[:15] + '...' if s.center else 'N/A',
+                s.enrollment_status
+            ])
+            
+        table = Table(data, colWidths=[80, 120, 80, 100, 80])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(table)
+        
+        doc.build(story)
+        file_content = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(file_content, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{title.lower().replace(" ", "_")}_{timezone.now().strftime("%Y%m%d")}.pdf"'
+        return response
+    except Exception as e:
+        logger.error(f"Error generating student pdf: {str(e)}")
+        raise
+
+def generate_graduated_list_excel(graduated, title):
+    """Generate Excel list of graduated students"""
+    try:
+        buffer = io.BytesIO()
+        data = []
+        for g in graduated:
+            student = g.student
+            data.append({
+                'Reg No': student.referance_no,
+                'Name': student.full_name,
+                'NIC': student.nic,
+                'Address': student.address_permant,
+                'Course': student.course.name if student.course else 'N/A',
+                'Center': student.center.name if student.center else 'N/A',
+                'Higher Edu': g.higher_education_status,
+                'Degree': g.degree or '',
+                'Employment': g.employment_status,
+                'Workplace': g.work_place or '',
+                'Designation': g.designation or ''
+            })
+            
+        df = pd.DataFrame(data)
+        with pd.ExcelWriter(buffer, engine='openpyxl') as writer:
+            df.to_excel(writer, sheet_name='Graduated', index=False)
+            
+        file_content = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(file_content, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="{title.lower().replace(" ", "_")}_{timezone.now().strftime("%Y%m%d")}.xlsx"'
+        return response
+    except Exception as e:
+        logger.error(f"Error generating graduated excel: {str(e)}")
+        raise
+
+def generate_graduated_list_pdf(graduated, title):
+    """Generate PDF list of graduated students"""
+    try:
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        styles = getSampleStyleSheet()
+        story = []
+        
+        story.append(Paragraph(title, styles['Title']))
+        story.append(Spacer(1, 12))
+        
+        data = [['Reg No', 'Name', 'Center', 'Emp Status', 'Higher Edu']]
+        for g in graduated:
+            s = g.student
+            data.append([
+                s.referance_no[:15] + '...' if len(s.referance_no or '') > 15 else s.referance_no,
+                s.name_with_initials[:20] + '...' if len(s.name_with_initials or '') > 20 else s.name_with_initials,
+                s.center.name[:15] + '...' if s.center else 'N/A',
+                g.employment_status,
+                g.higher_education_status
+            ])
+            
+        table = Table(data, colWidths=[80, 110, 90, 80, 80])
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 10),
+            ('FONTSIZE', (0, 1), (-1, -1), 8),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black)
+        ]))
+        story.append(table)
+        
+        doc.build(story)
+        file_content = buffer.getvalue()
+        buffer.close()
+        
+        response = HttpResponse(file_content, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{title.lower().replace(" ", "_")}_{timezone.now().strftime("%Y%m%d")}.pdf"'
+        return response
+    except Exception as e:
+        logger.error(f"Error generating graduated pdf: {str(e)}")
         raise

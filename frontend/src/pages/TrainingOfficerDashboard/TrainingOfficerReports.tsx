@@ -1,23 +1,23 @@
 // TrainingOfficerReports.tsx - FIXED VERSION WITH IMPROVED MOBILE RESPONSIVENESS
 import React, { useState, useEffect } from 'react';
-import { 
-  Download, 
-  Users, 
-  BookOpen, 
-  TrendingUp, 
+import {
+  Download,
+  Users,
+  BookOpen,
+  TrendingUp,
   X,
   FileText,
   Table,
   RefreshCw,
   AlertCircle
 } from 'lucide-react'; // REMOVED: TrendingDown (unused)
-import { 
-  exportTrainingReport, 
+import {
+  exportTrainingReport,
   fetchTrainingOfficerReports,
   canAccessTrainingOfficerReports, // NOW AVAILABLE
   getUserRole,
   getUserDistrict,
-  type TrainingOfficerReportType 
+  type TrainingOfficerReportType
 } from '../../api/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
@@ -77,7 +77,7 @@ const ExportModal: React.FC<{
   onExport: (options: {
     format: 'pdf' | 'excel';
     period: 'weekly' | 'monthly' | 'quarterly' | 'custom';
-    reportType: 'summary' | 'detailed' | 'performance';
+    reportType: 'summary' | 'detailed' | 'performance' | 'students' | 'graduated';
     startDate?: string;
     endDate?: string;
     includeCourses: boolean;
@@ -87,17 +87,14 @@ const ExportModal: React.FC<{
 }> = ({ isOpen, onClose, onExport }) => {
   const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
   const [period, setPeriod] = useState<'weekly' | 'monthly' | 'quarterly' | 'custom'>('monthly');
-  const [reportType, setReportType] = useState<'summary' | 'detailed' | 'performance'>('detailed');
+  const [reportType, setReportType] = useState<'summary' | 'detailed' | 'performance' | 'students' | 'graduated'>('detailed');
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
-  const [includeOptions, setIncludeOptions] = useState({
-    includeCourses: true,
-    includeInstructors: true,
-    includeCharts: true
-  });
   const [isExporting, setIsExporting] = useState(false);
+
+
 
   if (!isOpen) return null;
 
@@ -110,7 +107,9 @@ const ExportModal: React.FC<{
         reportType,
         startDate: period === 'custom' ? dateRange.start : undefined,
         endDate: period === 'custom' ? dateRange.end : undefined,
-        ...includeOptions
+        includeCourses: true,
+        includeInstructors: true,
+        includeCharts: true
       });
       onClose();
     } catch (error) {
@@ -147,18 +146,15 @@ const ExportModal: React.FC<{
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <button
                 onClick={() => setFormat('pdf')}
-                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${
-                  format === 'pdf'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${format === 'pdf'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <FileText className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${
-                  format === 'pdf' ? 'text-blue-600' : 'text-gray-400'
-                }`} />
-                <span className={`font-medium text-sm sm:text-base ${
-                  format === 'pdf' ? 'text-blue-900' : 'text-gray-700'
-                }`}>
+                <FileText className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${format === 'pdf' ? 'text-blue-600' : 'text-gray-400'
+                  }`} />
+                <span className={`font-medium text-sm sm:text-base ${format === 'pdf' ? 'text-blue-900' : 'text-gray-700'
+                  }`}>
                   PDF
                 </span>
                 <span className="text-xs text-gray-500 mt-1">Document</span>
@@ -166,18 +162,15 @@ const ExportModal: React.FC<{
 
               <button
                 onClick={() => setFormat('excel')}
-                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${
-                  format === 'excel'
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${format === 'excel'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <Table className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${
-                  format === 'excel' ? 'text-green-600' : 'text-gray-400'
-                }`} />
-                <span className={`font-medium text-sm sm:text-base ${
-                  format === 'excel' ? 'text-green-900' : 'text-gray-700'
-                }`}>
+                <Table className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${format === 'excel' ? 'text-green-600' : 'text-gray-400'
+                  }`} />
+                <span className={`font-medium text-sm sm:text-base ${format === 'excel' ? 'text-green-900' : 'text-gray-700'
+                  }`}>
                   Excel
                 </span>
                 <span className="text-xs text-gray-500 mt-1">Spreadsheet</span>
@@ -198,6 +191,8 @@ const ExportModal: React.FC<{
               <option value="summary">Summary Report</option>
               <option value="detailed">Detailed Report</option>
               <option value="performance">Performance Report</option>
+              <option value="students">Students Report</option>
+              <option value="graduated">Graduated Students Report</option>
             </select>
           </div>
 
@@ -241,52 +236,7 @@ const ExportModal: React.FC<{
             )}
           </div>
 
-          {/* Include Options */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
-              Include in Report
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeCourses}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeCourses: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Courses Summary</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeInstructors}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeInstructors: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Instructors Summary</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeCharts}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeCharts: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Charts & Graphs</span>
-              </label>
-            </div>
-          </div>
+
 
           {/* Format Info */}
           <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
@@ -294,7 +244,7 @@ const ExportModal: React.FC<{
               {format === 'pdf' ? 'PDF Training Report' : 'Excel Training Report'}
             </h4>
             <p className="text-xs sm:text-sm text-gray-600">
-              {format === 'pdf' 
+              {format === 'pdf'
                 ? 'Professional training report with comprehensive analysis of courses, instructors, and student performance.'
                 : 'Detailed spreadsheet with training data for further analysis and management.'
               }
@@ -313,13 +263,12 @@ const ExportModal: React.FC<{
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className={`flex items-center space-x-2 px-3 sm:px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
-              isExporting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : format === 'pdf'
+            className={`flex items-center space-x-2 px-3 sm:px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${isExporting
+              ? 'bg-gray-400 cursor-not-allowed'
+              : format === 'pdf'
                 ? 'bg-blue-600 hover:bg-blue-700'
                 : 'bg-green-600 hover:bg-green-700'
-            }`}
+              }`}
           >
             {isExporting ? (
               <>
@@ -361,7 +310,7 @@ const TrainingOfficerReports: React.FC = () => {
       setLoading(true);
       setError(null);
       setRefreshing(true);
-      
+
       const data = await fetchTrainingOfficerReports();
       setReportData(data);
     } catch (err: any) {
@@ -376,7 +325,7 @@ const TrainingOfficerReports: React.FC = () => {
   const handleExport = async (options: {
     format: 'pdf' | 'excel';
     period: 'weekly' | 'monthly' | 'quarterly' | 'custom';
-    reportType: 'summary' | 'detailed' | 'performance';
+    reportType: 'summary' | 'detailed' | 'performance' | 'students' | 'graduated';
     startDate?: string;
     endDate?: string;
     includeCourses: boolean;
@@ -388,11 +337,11 @@ const TrainingOfficerReports: React.FC = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
-      const periodText = options.period === 'custom' 
+
+      const periodText = options.period === 'custom'
         ? `${options.startDate}_to_${options.endDate}`
         : options.period;
-        
+
       a.download = `training_report_${getUserDistrict()}_${periodText}_${new Date().toISOString().split('T')[0]}.${options.format === 'pdf' ? 'pdf' : 'xlsx'}`;
       document.body.appendChild(a);
       a.click();
@@ -428,9 +377,8 @@ const TrainingOfficerReports: React.FC = () => {
             <button
               onClick={loadReportData}
               disabled={refreshing}
-              className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors w-1/2 sm:w-auto ${
-                refreshing ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-600 text-white hover:bg-gray-700'
-              }`}
+              className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors w-1/2 sm:w-auto ${refreshing ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-600 text-white hover:bg-gray-700'
+                }`}
             >
               <RefreshCw className={`w-4 sm:w-5 h-4 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
               <span className="text-sm">{refreshing ? 'Refreshing...' : 'Refresh Data'}</span>
@@ -523,17 +471,17 @@ const TrainingOfficerReports: React.FC = () => {
                 <XAxis dataKey="month" angle={-45} textAnchor="end" height={60} fontSize={10} />
                 <YAxis fontSize={10} />
                 <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="new_students" 
-                  stroke="#3b82f6" 
+                <Line
+                  type="monotone"
+                  dataKey="new_students"
+                  stroke="#3b82f6"
                   strokeWidth={2}
                   name="New Students"
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="completed_training" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="completed_training"
+                  stroke="#10b981"
                   strokeWidth={2}
                   name="Completed Training"
                 />
@@ -570,12 +518,11 @@ const TrainingOfficerReports: React.FC = () => {
                   <div>Courses:</div><div className="font-medium">{center.total_courses}</div>
                   <div>Completion:</div><div className="font-medium">{center.completion_rate}%</div>
                   <div>Performance:</div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    center.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${center.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
                     center.performance === 'Good' ? 'bg-blue-100 text-blue-800' :
-                    center.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
+                      center.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                    }`}>
                     {center.performance}
                   </span>
                 </div>
@@ -602,12 +549,11 @@ const TrainingOfficerReports: React.FC = () => {
                     <td className="px-4 py-3 text-sm text-gray-600">{center.total_courses}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">{center.completion_rate}%</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        center.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${center.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
                         center.performance === 'Good' ? 'bg-blue-100 text-blue-800' :
-                        center.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
+                          center.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
                         {center.performance}
                       </span>
                     </td>
@@ -632,12 +578,11 @@ const TrainingOfficerReports: React.FC = () => {
                   <div>Students:</div><div className="font-medium">{instructor.total_students}</div>
                   <div>Completion:</div><div className="font-medium">{instructor.completion_rate}%</div>
                   <div>Performance:</div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    instructor.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${instructor.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
                     instructor.performance === 'Good' ? 'bg-blue-100 text-blue-800' :
-                    instructor.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
+                      instructor.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                    }`}>
                     {instructor.performance}
                   </span>
                 </div>
@@ -666,12 +611,11 @@ const TrainingOfficerReports: React.FC = () => {
                     <td className="px-4 py-3 text-sm text-gray-600">{instructor.total_students}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">{instructor.completion_rate}%</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        instructor.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${instructor.performance === 'Excellent' ? 'bg-green-100 text-green-800' :
                         instructor.performance === 'Good' ? 'bg-blue-100 text-blue-800' :
-                        instructor.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
+                          instructor.performance === 'Average' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                        }`}>
                         {instructor.performance}
                       </span>
                     </td>
@@ -696,11 +640,10 @@ const TrainingOfficerReports: React.FC = () => {
                   <div>Enrolled:</div><div className="font-medium">{course.total_enrolled}</div>
                   <div>Completion:</div><div className="font-medium">{course.completion_rate}%</div>
                   <div>Status:</div>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    course.status === 'Active' ? 'bg-green-100 text-green-800' :
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${course.status === 'Active' ? 'bg-green-100 text-green-800' :
                     course.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
+                      'bg-gray-100 text-gray-800'
+                    }`}>
                     {course.status}
                   </span>
                 </div>
@@ -729,11 +672,10 @@ const TrainingOfficerReports: React.FC = () => {
                     <td className="px-4 py-3 text-sm text-gray-600">{course.total_enrolled}</td>
                     <td className="px-4 py-3 text-sm text-gray-600">{course.completion_rate}%</td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        course.status === 'Active' ? 'bg-green-100 text-green-800' :
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${course.status === 'Active' ? 'bg-green-100 text-green-800' :
                         course.status === 'Completed' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                          'bg-gray-100 text-gray-800'
+                        }`}>
                         {course.status}
                       </span>
                     </td>

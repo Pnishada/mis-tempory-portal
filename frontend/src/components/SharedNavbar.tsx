@@ -25,6 +25,7 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
           { path: '/dashboard/admin/approvals', label: 'Approvals', icon: '✅' },
           { path: '/dashboard/admin/courses', label: 'Courses', icon: '📚' },
           { path: '/dashboard/admin/students', label: 'Students', icon: '👨‍🎓' },
+          { path: '/dashboard/admin/graduated-students', label: 'Graduated Students', icon: '🎓' },
           { path: '/dashboard/admin/reports', label: 'Reports', icon: '📈' }
         ];
       case 'district_manager':
@@ -36,6 +37,7 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
           { path: '/dashboard/manager/students', label: 'Students', icon: '👨‍🎓' },
           { path: '/dashboard/manager/instructors', label: 'Instructors', icon: '👨‍🏫' },
           { path: '/dashboard/manager/approvals_dm', label: 'Approvals', icon: '✅' },
+          { path: '/dashboard/manager/graduated-students', label: 'Graduated Students', icon: '🎓' },
           { path: '/dashboard/manager/reports', label: 'Reports', icon: '📈' }
         ];
       case 'training_officer':

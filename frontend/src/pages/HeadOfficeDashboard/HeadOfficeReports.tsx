@@ -1,10 +1,10 @@
 // HeadOfficeReports.tsx - COMPLETE WITH REAL BACKEND INTEGRATION AND IMPROVED MOBILE RESPONSIVENESS
 import React, { useState, useEffect } from 'react';
-import { 
-  Download, 
-  Users, 
-  BookOpen, 
-  TrendingUp, 
+import {
+  Download,
+  Users,
+  BookOpen,
+  TrendingUp,
   Building2,
   CheckCircle,
   MapPin,
@@ -16,11 +16,11 @@ import {
   AlertCircle,
   Shield
 } from 'lucide-react';
-import { 
-  exportHeadOfficeReport, 
-  fetchHeadOfficeReports, 
+import {
+  exportHeadOfficeReport,
+  fetchHeadOfficeReports,
   canAccessHeadOfficeReports,
-  getUserRole 
+  getUserRole
 } from '../../api/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
@@ -31,7 +31,7 @@ const ExportModal: React.FC<{
   onExport: (options: {
     format: 'pdf' | 'excel';
     period: 'weekly' | 'monthly' | 'quarterly' | 'custom';
-    reportType: 'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors';
+    reportType: 'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors' | 'students' | 'graduated';
     startDate?: string;
     endDate?: string;
     includeDistricts: boolean;
@@ -42,18 +42,13 @@ const ExportModal: React.FC<{
 }> = ({ isOpen, onClose, onExport }) => {
   const [format, setFormat] = useState<'pdf' | 'excel'>('pdf');
   const [period, setPeriod] = useState<'weekly' | 'monthly' | 'quarterly' | 'custom'>('monthly');
-  const [reportType, setReportType] = useState<'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors'>('comprehensive');
+  const [reportType, setReportType] = useState<'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors' | 'students' | 'graduated'>('comprehensive');
   const [dateRange, setDateRange] = useState({
     start: new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
-  const [includeOptions, setIncludeOptions] = useState({
-    includeDistricts: true,
-    includeCenters: true,
-    includeCourses: true,
-    includeInstructors: true
-  });
   const [isExporting, setIsExporting] = useState(false);
+
 
   if (!isOpen) return null;
 
@@ -66,7 +61,10 @@ const ExportModal: React.FC<{
         reportType,
         startDate: period === 'custom' ? dateRange.start : undefined,
         endDate: period === 'custom' ? dateRange.end : undefined,
-        ...includeOptions
+        includeDistricts: true,
+        includeCenters: true,
+        includeCourses: true,
+        includeInstructors: true
       });
       onClose();
     } catch (error) {
@@ -104,18 +102,15 @@ const ExportModal: React.FC<{
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
               <button
                 onClick={() => setFormat('pdf')}
-                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${
-                  format === 'pdf'
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${format === 'pdf'
+                  ? 'border-blue-500 bg-blue-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <FileText className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${
-                  format === 'pdf' ? 'text-blue-600' : 'text-gray-400'
-                }`} />
-                <span className={`font-medium text-sm sm:text-base ${
-                  format === 'pdf' ? 'text-blue-900' : 'text-gray-700'
-                }`}>
+                <FileText className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${format === 'pdf' ? 'text-blue-600' : 'text-gray-400'
+                  }`} />
+                <span className={`font-medium text-sm sm:text-base ${format === 'pdf' ? 'text-blue-900' : 'text-gray-700'
+                  }`}>
                   PDF
                 </span>
                 <span className="text-xs text-gray-500 mt-1">Document</span>
@@ -123,18 +118,15 @@ const ExportModal: React.FC<{
 
               <button
                 onClick={() => setFormat('excel')}
-                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${
-                  format === 'excel'
-                    ? 'border-green-500 bg-green-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`flex flex-col items-center p-3 sm:p-4 border-2 rounded-lg transition-all ${format === 'excel'
+                  ? 'border-green-500 bg-green-50'
+                  : 'border-gray-200 hover:border-gray-300'
+                  }`}
               >
-                <Table className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${
-                  format === 'excel' ? 'text-green-600' : 'text-gray-400'
-                }`} />
-                <span className={`font-medium text-sm sm:text-base ${
-                  format === 'excel' ? 'text-green-900' : 'text-gray-700'
-                }`}>
+                <Table className={`w-6 h-6 sm:w-8 sm:h-8 mb-2 ${format === 'excel' ? 'text-green-600' : 'text-gray-400'
+                  }`} />
+                <span className={`font-medium text-sm sm:text-base ${format === 'excel' ? 'text-green-900' : 'text-gray-700'
+                  }`}>
                   Excel
                 </span>
                 <span className="text-xs text-gray-500 mt-1">Spreadsheet</span>
@@ -157,6 +149,8 @@ const ExportModal: React.FC<{
               <option value="districts">District Comparison</option>
               <option value="centers">Centers Analysis</option>
               <option value="instructors">Instructors Summary</option>
+              <option value="students">Students Report</option>
+              <option value="graduated">Graduated Students Report</option>
             </select>
           </div>
 
@@ -200,65 +194,7 @@ const ExportModal: React.FC<{
             )}
           </div>
 
-          {/* Include Options */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2 sm:mb-3">
-              Include in Report
-            </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeDistricts}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeDistricts: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">District Performance</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeCenters}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeCenters: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Centers Analysis</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeCourses}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeCourses: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Courses & Programs</span>
-              </label>
-              
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={includeOptions.includeInstructors}
-                  onChange={(e) => setIncludeOptions(prev => ({ 
-                    ...prev, 
-                    includeInstructors: e.target.checked 
-                  }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <span className="ml-2 text-sm text-gray-700">Instructors Data</span>
-              </label>
-            </div>
-          </div>
+
 
           {/* Format Info */}
           <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
@@ -266,7 +202,7 @@ const ExportModal: React.FC<{
               {format === 'pdf' ? 'PDF Head Office Report' : 'Excel Head Office Report'}
             </h4>
             <p className="text-xs sm:text-sm text-gray-600">
-              {format === 'pdf' 
+              {format === 'pdf'
                 ? 'Comprehensive island-wide report with district comparisons, center performance, and instructor analysis.'
                 : 'Detailed spreadsheet with island-wide data for strategic analysis and decision making.'
               }
@@ -285,13 +221,12 @@ const ExportModal: React.FC<{
           <button
             onClick={handleExport}
             disabled={isExporting}
-            className={`flex items-center space-x-2 px-3 sm:px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
-              isExporting
-                ? 'bg-gray-400 cursor-not-allowed'
-                : format === 'pdf'
+            className={`flex items-center space-x-2 px-3 sm:px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${isExporting
+              ? 'bg-gray-400 cursor-not-allowed'
+              : format === 'pdf'
                 ? 'bg-blue-600 hover:bg-blue-700'
                 : 'bg-green-600 hover:bg-green-700'
-            }`}
+              }`}
           >
             {isExporting ? (
               <>
@@ -330,7 +265,7 @@ const PermissionDenied: React.FC = () => (
         <Shield className="w-10 h-10 sm:w-12 sm:h-12 text-red-600 mx-auto mb-4" />
         <div className="text-red-800 font-semibold text-base sm:text-lg mb-2">Access Denied</div>
         <p className="text-red-600 text-sm sm:text-base mb-4">
-          Head Office Reports are only accessible to administrators. 
+          Head Office Reports are only accessible to administrators.
           Your current role ({getUserRole()}) does not have permission to view this section.
         </p>
         <button
@@ -406,11 +341,11 @@ const HeadOfficeReports: React.FC = () => {
       setLoading(true);
       setError(null);
       setRefreshing(true);
-      
+
       // Use real API call
       const realData = await fetchHeadOfficeReports();
       setReportData(realData);
-      
+
     } catch (error: any) {
       console.error('Failed to load head office report data:', error);
       const errorMessage = error.response?.data?.error || 'Failed to load report data. Please check your connection and try again.';
@@ -424,7 +359,7 @@ const HeadOfficeReports: React.FC = () => {
   const handleExport = async (options: {
     format: 'pdf' | 'excel';
     period: 'weekly' | 'monthly' | 'quarterly' | 'custom';
-    reportType: 'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors';
+    reportType: 'island' | 'districts' | 'centers' | 'comprehensive' | 'instructors' | 'students' | 'graduated';
     startDate?: string;
     endDate?: string;
     includeDistricts: boolean;
@@ -435,27 +370,27 @@ const HeadOfficeReports: React.FC = () => {
     try {
       // Use real export function
       const blob = await exportHeadOfficeReport(
-        options.format, 
-        options.period, 
+        options.format,
+        options.period,
         options.reportType,
         {
           start_date: options.startDate,
           end_date: options.endDate,
-          include_districts: options.includeDistricts,
-          include_centers: options.includeCenters,
-          include_courses: options.includeCourses,
-          include_instructors: options.includeInstructors
+          include_districts: true,
+          include_centers: true,
+          include_courses: true,
+          include_instructors: true
         }
       );
-      
+
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      
-      const periodText = options.period === 'custom' 
+
+      const periodText = options.period === 'custom'
         ? `${options.startDate}_to_${options.endDate}`
         : options.period;
-        
+
       a.download = `head_office_report_${periodText}_${new Date().toISOString().split('T')[0]}.${options.format === 'pdf' ? 'pdf' : 'xlsx'}`;
       document.body.appendChild(a);
       a.click();
@@ -531,11 +466,10 @@ const HeadOfficeReports: React.FC = () => {
             <button
               onClick={loadReportData}
               disabled={refreshing}
-              className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                refreshing
-                  ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-gray-600 text-white hover:bg-gray-700'
-              }`}
+              className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors ${refreshing
+                ? 'bg-gray-400 text-white cursor-not-allowed'
+                : 'bg-gray-600 text-white hover:bg-gray-700'
+                }`}
             >
               <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
               <span className="text-sm">{refreshing ? 'Refreshing...' : 'Refresh Data'}</span>
@@ -658,19 +592,19 @@ const HeadOfficeReports: React.FC = () => {
             <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 250 : 300}>
               <LineChart data={reportData.island_trends}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="period" 
+                <XAxis
+                  dataKey="period"
                   stroke="#6b7280"
                   fontSize={10}
                   angle={-45}
                   textAnchor="end"
                   height={70}
                 />
-                <YAxis 
+                <YAxis
                   stroke="#6b7280"
                   fontSize={10}
                 />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
                     backgroundColor: 'white',
                     border: '1px solid #e5e7eb',
@@ -678,28 +612,28 @@ const HeadOfficeReports: React.FC = () => {
                     boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                   }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="enrollment" 
-                  stroke="#3b82f6" 
+                <Line
+                  type="monotone"
+                  dataKey="enrollment"
+                  stroke="#3b82f6"
                   strokeWidth={3}
                   name="Enrollment"
                   dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: '#1d4ed8' }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="completions" 
-                  stroke="#10b981" 
+                <Line
+                  type="monotone"
+                  dataKey="completions"
+                  stroke="#10b981"
                   strokeWidth={3}
                   name="Completions"
                   dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
                   activeDot={{ r: 6, fill: '#047857' }}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="new_instructors" 
-                  stroke="#f59e0b" 
+                <Line
+                  type="monotone"
+                  dataKey="new_instructors"
+                  stroke="#f59e0b"
                   strokeWidth={3}
                   name="New Instructors"
                   dot={{ fill: '#f59e0b', strokeWidth: 2, r: 4 }}
@@ -732,7 +666,7 @@ const HeadOfficeReports: React.FC = () => {
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
-                <Tooltip 
+                <Tooltip
                   formatter={(value, name) => [`${value}%`, name]}
                   contentStyle={{
                     backgroundColor: 'white',
@@ -753,7 +687,7 @@ const HeadOfficeReports: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold text-gray-900">District Performance Comparison</h3>
             <span className="text-xs sm:text-sm text-gray-500">{reportData.district_performance.length} districts</span>
           </div>
-          
+
           {/* Mobile View: Cards */}
           <div className="sm:hidden space-y-4">
             {reportData.district_performance.map((district: any, index: number) => (
@@ -766,26 +700,23 @@ const HeadOfficeReports: React.FC = () => {
                   <div>Completion:</div>
                   <div className="flex items-center">
                     <span className="font-medium">{district.completion}%</span>
-                    <div className={`ml-2 w-2 h-2 rounded-full ${
-                      district.completion >= 80 ? 'bg-green-500' :
+                    <div className={`ml-2 w-2 h-2 rounded-full ${district.completion >= 80 ? 'bg-green-500' :
                       district.completion >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}></div>
+                      }`}></div>
                   </div>
                   <div>Growth:</div>
-                  <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-                    district.growth > 10 
-                      ? 'bg-green-100 text-green-800'
-                      : district.growth > 0
+                  <div className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${district.growth > 10
+                    ? 'bg-green-100 text-green-800'
+                    : district.growth > 0
                       ? 'bg-yellow-100 text-yellow-800'
                       : 'bg-red-100 text-red-800'
-                  }`}>
-                    <TrendingUp className={`w-3 h-3 mr-1 ${
-                      district.growth > 10 
-                        ? 'text-green-600'
-                        : district.growth > 0
+                    }`}>
+                    <TrendingUp className={`w-3 h-3 mr-1 ${district.growth > 10
+                      ? 'text-green-600'
+                      : district.growth > 0
                         ? 'text-yellow-600'
                         : 'text-red-600'
-                    }`} />
+                      }`} />
                     {district.growth > 0 ? '+' : ''}{district.growth}%
                   </div>
                 </div>
@@ -824,27 +755,24 @@ const HeadOfficeReports: React.FC = () => {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="text-sm font-medium text-gray-900">{district.completion}%</div>
-                        <div className={`ml-2 w-2 h-2 rounded-full ${
-                          district.completion >= 80 ? 'bg-green-500' :
+                        <div className={`ml-2 w-2 h-2 rounded-full ${district.completion >= 80 ? 'bg-green-500' :
                           district.completion >= 60 ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}></div>
+                          }`}></div>
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        district.growth > 10 
-                          ? 'bg-green-100 text-green-800'
-                          : district.growth > 0
+                      <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${district.growth > 10
+                        ? 'bg-green-100 text-green-800'
+                        : district.growth > 0
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
-                      }`}>
-                        <TrendingUp className={`w-3 h-3 mr-1 ${
-                          district.growth > 10 
-                            ? 'text-green-600'
-                            : district.growth > 0
+                        }`}>
+                        <TrendingUp className={`w-3 h-3 mr-1 ${district.growth > 10
+                          ? 'text-green-600'
+                          : district.growth > 0
                             ? 'text-yellow-600'
                             : 'text-red-600'
-                        }`} />
+                          }`} />
                         {district.growth > 0 ? '+' : ''}{district.growth}%
                       </div>
                     </td>
@@ -861,7 +789,7 @@ const HeadOfficeReports: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold text-gray-900">Top Performing Centers Island-Wide</h3>
             <span className="text-xs sm:text-sm text-gray-500">By student completion rate</span>
           </div>
-          
+
           {/* Mobile View: Cards */}
           <div className="sm:hidden space-y-4">
             {reportData.top_performing_centers.map((center: any, index: number) => (
@@ -874,10 +802,9 @@ const HeadOfficeReports: React.FC = () => {
                   <div>Completion:</div>
                   <div className="flex items-center">
                     <span className="font-medium">{center.completion}%</span>
-                    <div className={`ml-2 w-2 h-2 rounded-full ${
-                      center.completion >= 90 ? 'bg-green-500' :
+                    <div className={`ml-2 w-2 h-2 rounded-full ${center.completion >= 90 ? 'bg-green-500' :
                       center.completion >= 80 ? 'bg-yellow-500' : 'bg-red-500'
-                    }`}></div>
+                      }`}></div>
                   </div>
                 </div>
               </div>
@@ -914,10 +841,9 @@ const HeadOfficeReports: React.FC = () => {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="text-sm font-medium text-gray-900">{center.completion}%</div>
-                        <div className={`ml-2 w-2 h-2 rounded-full ${
-                          center.completion >= 90 ? 'bg-green-500' :
+                        <div className={`ml-2 w-2 h-2 rounded-full ${center.completion >= 90 ? 'bg-green-500' :
                           center.completion >= 80 ? 'bg-yellow-500' : 'bg-red-500'
-                        }`}></div>
+                          }`}></div>
                       </div>
                     </td>
                   </tr>
@@ -933,7 +859,7 @@ const HeadOfficeReports: React.FC = () => {
             <h3 className="text-base sm:text-lg font-semibold text-gray-900">Instructor Summary by District</h3>
             <span className="text-xs sm:text-sm text-gray-500">Teaching staff overview</span>
           </div>
-          
+
           {/* Mobile View: Cards */}
           <div className="sm:hidden space-y-4">
             {reportData.instructor_summary.map((instructor: any, index: number) => (
@@ -951,11 +877,10 @@ const HeadOfficeReports: React.FC = () => {
                       {[...Array(5)].map((_, i) => (
                         <span
                           key={i}
-                          className={`text-xs ${
-                            i < Math.floor(instructor.avg_rating)
-                              ? 'text-yellow-400'
-                              : 'text-gray-300'
-                          }`}
+                          className={`text-xs ${i < Math.floor(instructor.avg_rating)
+                            ? 'text-yellow-400'
+                            : 'text-gray-300'
+                            }`}
                         >
                           ★
                         </span>
@@ -1004,11 +929,10 @@ const HeadOfficeReports: React.FC = () => {
                           {[...Array(5)].map((_, i) => (
                             <span
                               key={i}
-                              className={`text-sm ${
-                                i < Math.floor(instructor.avg_rating)
-                                  ? 'text-yellow-400'
-                                  : 'text-gray-300'
-                              }`}
+                              className={`text-sm ${i < Math.floor(instructor.avg_rating)
+                                ? 'text-yellow-400'
+                                : 'text-gray-300'
+                                }`}
                             >
                               ★
                             </span>

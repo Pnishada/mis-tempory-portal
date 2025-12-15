@@ -9,6 +9,9 @@ import Users from "./Users";
 import Instructor from "./Instructor";
 import Students from "./Students";
 
+// Main Pages
+import GraduatedStudent from "./GraduatedStudent";
+
 // ADMIN
 import HeadOfficeOverview from "../HeadOfficeDashboard/HeadOfficeOverview";
 import HeadOfficeCourses from "../HeadOfficeDashboard/HeadOfficeCourses";
@@ -29,7 +32,6 @@ import TrainingOfficerReports from "../TrainingOfficerDashboard/TrainingOfficerR
 // DATA ENTRY
 import DataEntryStudents from "../DataEntryDashboard/DataEntryStudents";
 import DataEntryOverview from "../DataEntryDashboard/DataEntryOverview";
-import DataEntryGraduatedStudents from "../DataEntryDashboard/DataEntryGraduatedStudents";
 
 // INSTRUCTOR
 import InstructorOverview from "../InstructorDashboard/InstructorOverview";
@@ -82,6 +84,7 @@ const Dashboard = () => {
       if (p === "/dashboard/admin/students") return <Students />;
       if (p === "/dashboard/admin/approvals") return <HeadOfficeApprovals />;
       if (p === "/dashboard/admin/reports") return <HeadOfficeReports />;
+      if (p === "/dashboard/admin/graduated-students") return <GraduatedStudent />;
     }
 
     // DISTRICT MANAGER
@@ -94,6 +97,7 @@ const Dashboard = () => {
       if (p === "/dashboard/manager/courses") return <DistrictManagerCourses />;
       if (p === "/dashboard/manager/approvals_dm") return <DistrictManagerApprovals />;
       if (p === "/dashboard/manager/reports") return <DistrictManagerReports />;
+      if (p === "/dashboard/manager/graduated-students") return <GraduatedStudent />;
     }
 
     // TRAINING OFFICER
@@ -109,7 +113,7 @@ const Dashboard = () => {
     if (role === "data_entry") {
       if (p === "/dashboard/data-entry") return <DataEntryStudents />;
       if (p === "/dashboard/data-entry/overview") return <DataEntryOverview />;
-      if (p === "/dashboard/data-entry/graduated-students") return <DataEntryGraduatedStudents />;
+      if (p === "/dashboard/data-entry/graduated-students") return <GraduatedStudent />;
     }
 
     // INSTRUCTOR
