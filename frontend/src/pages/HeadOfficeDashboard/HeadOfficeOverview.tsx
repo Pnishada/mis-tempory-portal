@@ -45,6 +45,7 @@ const Overview: React.FC = () => {
   const {
     total_centers = 0,
     active_students = 0,
+    graduated_students = 0,
     total_instructors = 0,
     completion_rate = 0,
     enrollment_data = [],
@@ -98,10 +99,10 @@ const Overview: React.FC = () => {
             color="yellow"
           />
           <StatsCard
-            title="Total Instructors"
-            value={total_instructors.toLocaleString()}
+            title="Graduated Students"
+            value={graduated_students.toLocaleString()}
             icon={GraduationCap}
-            trend={trends.instructors}
+            trend={trends.students} // Using students trend as proxy for now
             color="sky"
           />
           <StatsCard
@@ -267,8 +268,8 @@ const Overview: React.FC = () => {
                 recent_activities.map((activity: any) => (
                   <div key={activity.id} className="flex gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0 last:pb-0">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${activity.type === 'success' ? 'bg-green-100 text-green-600' :
-                        activity.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                          'bg-blue-100 text-blue-600'
+                      activity.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
+                        'bg-blue-100 text-blue-600'
                       }`}>
                       {activity.type === 'warning' ? <AlertCircle className="w-4 h-4" /> : <MapPin className="w-4 h-4" />}
                     </div>

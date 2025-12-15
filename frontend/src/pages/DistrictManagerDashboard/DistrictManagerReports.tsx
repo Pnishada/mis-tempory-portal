@@ -10,7 +10,8 @@ import {
   RefreshCw,
   AlertCircle,
   FileText,
-  Table
+  Table,
+  GraduationCap
 } from 'lucide-react';
 import {
   fetchDistrictReports,
@@ -303,6 +304,30 @@ const DistrictManagerReports: React.FC = () => {
   const [exportModalOpen, setExportModalOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
+  // Fetch active students and graduated students count
+  const [summaryStats, setSummaryStats] = useState({
+    activeStudents: 0,
+    graduatedStudents: 0,
+    loading: true
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await import('../../api/api').then(module => module.fetchOverview());
+        setSummaryStats({
+          activeStudents: response.active_students || 0,
+          graduatedStudents: response.graduated_students || 0,
+          loading: false
+        });
+      } catch (error) {
+        console.error('Failed to fetch summary stats', error);
+        setSummaryStats(prev => ({ ...prev, loading: false }));
+      }
+    };
+    fetchStats();
+  }, []);
+
   if (!canAccessDistrictReports()) {
     return <PermissionDenied />;
   }
@@ -385,7 +410,10 @@ const DistrictManagerReports: React.FC = () => {
         onExport={handleExport}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4 sm:gap-0">
           <div>

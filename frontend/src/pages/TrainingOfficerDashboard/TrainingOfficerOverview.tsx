@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import StatsCard from '../../components/StatsCard';
-import { Users, GraduationCap, BookOpen, TrendingUp, Building2, Target, FileText, CheckCircle, AlertCircle, Clock, BarChart3 } from 'lucide-react';
+import { Users, GraduationCap, BookOpen, TrendingUp, Building2, Target, CheckCircle, BarChart3 } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { fetchOverview, fetchDashboardStats, type OverviewDataType, type DashboardStatsType } from '../../api/api';
 import { useNavigate } from 'react-router-dom';
@@ -41,7 +41,7 @@ const TrainingOfficerOverview: React.FC = () => {
 
   const centerPerformanceData = overviewData?.center_performance_data || [];
 
-  const recentActivities = overviewData?.recent_activities || [];
+
 
   // Quick Actions Handlers - Only Courses and Instructors
   const handleViewCourses = () => {
@@ -53,18 +53,7 @@ const TrainingOfficerOverview: React.FC = () => {
   };
 
   // Get activity icon based on type
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'success':
-        return <CheckCircle className="w-4 h-4" />;
-      case 'info':
-        return <FileText className="w-4 h-4" />;
-      case 'warning':
-        return <AlertCircle className="w-4 h-4" />;
-      default:
-        return <Clock className="w-4 h-4" />;
-    }
-  };
+
 
   if (loading) {
     return (
@@ -83,7 +72,7 @@ const TrainingOfficerOverview: React.FC = () => {
         <div className="text-center">
           <div className="text-red-600 text-xl mb-4">Error</div>
           <p className="text-gray-600">{error}</p>
-          <button 
+          <button
             onClick={loadOverviewData}
             className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
           >
@@ -95,13 +84,13 @@ const TrainingOfficerOverview: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50"> 
+    <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Training Officer Dashboard</h1>
           <p className="text-gray-600 mt-2">
-            {localStorage.getItem('user_district') ? 
-              `${localStorage.getItem('user_district')} District - Training Overview` : 
+            {localStorage.getItem('user_district') ?
+              `${localStorage.getItem('user_district')} District - Training Overview` :
               'Training Program Overview'
             }
           </p>
@@ -124,10 +113,10 @@ const TrainingOfficerOverview: React.FC = () => {
             color="green"
           />
           <StatsCard
-            title="Instructors"
-            value={overviewData?.total_instructors?.toString() || "0"}
+            title="Graduated Students"
+            value={overviewData?.graduated_students?.toString() || "0"}
             icon={GraduationCap}
-            trend={overviewData?.trends?.instructors || { value: 0, isPositive: true }}
+            trend={overviewData?.trends?.graduated_students || { value: 0, isPositive: true }}
             color="sky"
           />
           <StatsCard
@@ -150,11 +139,11 @@ const TrainingOfficerOverview: React.FC = () => {
                   <XAxis dataKey="month" />
                   <YAxis />
                   <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="students" 
-                    stroke="#3b82f6" 
-                    strokeWidth={2} 
+                  <Line
+                    type="monotone"
+                    dataKey="students"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
                     dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                   />
                 </LineChart>
@@ -203,65 +192,8 @@ const TrainingOfficerOverview: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom Section - 3 Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Recent Activities */}
-          <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Recent Activities</h3>
-              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">
-                {recentActivities.length} activities
-              </span>
-            </div>
-            <div className="space-y-3 max-h-80 overflow-y-auto">
-              {recentActivities.length > 0 ? (
-                recentActivities.map((activity) => (
-                  <div 
-                    key={activity.id} 
-                    className="flex items-start space-x-3 p-3 rounded-lg border border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
-                    onClick={() => {
-                      if (activity.id.includes('center')) {
-                        // Navigate to relevant section based on activity type
-                      } else if (activity.id.includes('approval')) {
-                        // Navigate to approvals if available
-                      }
-                    }}
-                  >
-                    <div className={`p-2 rounded-full flex-shrink-0 ${
-                      activity.type === 'success' ? 'bg-green-100 text-green-600' :
-                      activity.type === 'info' ? 'bg-blue-100 text-blue-600' :
-                      activity.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                      'bg-gray-100 text-gray-600'
-                    }`}>
-                      {getActivityIcon(activity.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {activity.activity}
-                      </p>
-                      <div className="flex items-center justify-between mt-1">
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          activity.type === 'success' ? 'bg-green-50 text-green-700' :
-                          activity.type === 'info' ? 'bg-blue-50 text-blue-700' :
-                          activity.type === 'warning' ? 'bg-yellow-50 text-yellow-700' :
-                          'bg-gray-50 text-gray-700'
-                        }`}>
-                          {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
-                        </span>
-                        <span className="text-xs text-gray-500">{activity.time}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <Clock className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-                  <p>No recent activities</p>
-                  <p className="text-sm mt-1">Activities will appear here as they occur</p>
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Bottom Section - 2 Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
           {/* Quick Actions - Only Courses and Instructors */}
           <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
@@ -272,7 +204,7 @@ const TrainingOfficerOverview: React.FC = () => {
               </span>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <button 
+              <button
                 onClick={handleViewCourses}
                 className="flex flex-col items-center p-6 rounded-lg border border-gray-200 hover:bg-green-50 hover:border-green-300 transition-colors group"
               >
@@ -283,7 +215,7 @@ const TrainingOfficerOverview: React.FC = () => {
                 <span className="text-sm text-gray-500 text-center mt-2">Manage training courses</span>
               </button>
 
-              <button 
+              <button
                 onClick={handleManageInstructors}
                 className="flex flex-col items-center p-6 rounded-lg border border-gray-200 hover:bg-purple-50 hover:border-purple-300 transition-colors group"
               >
@@ -316,7 +248,7 @@ const TrainingOfficerOverview: React.FC = () => {
                   {dashboardStats?.enrollment_stats?.enrolled || 0}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-blue-100 rounded-lg">
@@ -328,7 +260,7 @@ const TrainingOfficerOverview: React.FC = () => {
                   {dashboardStats?.enrollment_stats?.completed || 0}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-orange-100 rounded-lg">
@@ -340,7 +272,7 @@ const TrainingOfficerOverview: React.FC = () => {
                   {dashboardStats?.active_courses || 0}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between p-3 rounded-lg border border-gray-100">
                 <div className="flex items-center space-x-3">
                   <div className="p-2 bg-purple-100 rounded-lg">

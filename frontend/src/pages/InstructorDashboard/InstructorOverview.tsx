@@ -1,15 +1,15 @@
 // InstructorOverview.tsx - FINAL VERSION WITHOUT LOCATION
 import React, { useState, useEffect } from 'react';
-import { 
-  Calendar, 
-  Clock, 
-  BookOpen, 
-  Users, 
-  TrendingUp, 
+import {
+  Calendar,
+  Clock,
+  BookOpen,
+  Users,
+  TrendingUp,
   Award
 } from 'lucide-react';
-import { 
-  fetchInstructorOverview, 
+import {
+  fetchInstructorOverview,
   type InstructorOverviewData
 } from '../../api/api';
 
@@ -74,7 +74,7 @@ const ClassCard: React.FC<ClassCardProps> = ({ classItem }) => {
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="font-semibold text-gray-900 text-lg mb-3">{classItem.course}</h3>
-          
+
           {/* Date and Time */}
           <div className="flex items-center text-sm text-gray-600 mb-3">
             <Calendar className="w-4 h-4 mr-2" />
@@ -126,8 +126,10 @@ const InstructorOverview: React.FC = () => {
       setError('');
       const data = await fetchInstructorOverview();
       setOverviewData(data);
-    } catch (err) {
-      setError('Failed to load instructor overview');
+      setOverviewData(data);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to load instructor overview';
+      setError(errorMessage);
       console.error('Error loading instructor overview:', err);
     } finally {
       setLoading(false);
@@ -174,7 +176,7 @@ const InstructorOverview: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-4">{error}</p>
-          <button 
+          <button
             onClick={loadInstructorOverview}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors duration-200"
           >

@@ -659,6 +659,7 @@ export const updateApprovalStatus = async (id: number, action: 'approve' | 'reje
 export interface OverviewDataType {
   total_centers: number;
   active_students: number;
+  graduated_students: number;
   total_instructors: number;
   completion_rate: number;
   enrollment_data: Array<{ month: string; students: number }>;
@@ -672,6 +673,7 @@ export interface OverviewDataType {
   trends: {
     centers: { value: number; isPositive: boolean };
     students: { value: number; isPositive: boolean };
+    graduated_students: { value: number; isPositive: boolean };
     instructors: { value: number; isPositive: boolean };
     completion: { value: number; isPositive: boolean };
   };

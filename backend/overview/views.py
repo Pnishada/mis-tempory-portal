@@ -12,6 +12,7 @@ import logging
 from centers.models import Center
 from users.models import User
 from students.models import Student
+from graduated_students.models import GraduatedStudent
 from courses.models import Course, CourseApproval
 from approvals.models import Approval
 from attendance.models import Attendance, AttendanceSummary
@@ -65,8 +66,13 @@ class OverviewView(APIView):
         ).count()
         total_instructors = User.objects.filter(
             district_filter,
-            role='instructor', 
+            role='instructor',
             is_active=True
+        ).count()
+
+        # Graduated students for district
+        graduated_students = GraduatedStudent.objects.filter(
+            student__district=user.district
         ).count()
         
         # Course completion rate for district
@@ -90,7 +96,10 @@ class OverviewView(APIView):
         return {
             'total_centers': total_centers,
             'active_students': active_students,
+            'active_students': active_students,
             'total_instructors': total_instructors,
+            'graduated_students': graduated_students,
+            'completion_rate': completion_rate,
             'completion_rate': completion_rate,
             'enrollment_data': enrollment_data,
             'center_performance_data': center_performance_data,
@@ -105,6 +114,7 @@ class OverviewView(APIView):
         total_centers = Center.objects.count()
         active_students = Student.objects.filter(enrollment_status='Enrolled').count()
         total_instructors = User.objects.filter(role='instructor', is_active=True).count()
+        graduated_students = GraduatedStudent.objects.count()
         
         # Completion rate from courses
         total_courses = Course.objects.count()
@@ -127,6 +137,7 @@ class OverviewView(APIView):
             'total_centers': total_centers,
             'active_students': active_students,
             'total_instructors': total_instructors,
+            'graduated_students': graduated_students,
             'completion_rate': completion_rate,
             'enrollment_data': enrollment_data,
             'center_performance_data': center_performance_data,
@@ -225,8 +236,9 @@ class OverviewView(APIView):
             })
         
         # Pending approvals in district
+        district_center_names = Center.objects.filter(district=district).values_list('name', flat=True)
         pending_count = Approval.objects.filter(
-            center=district,  # Using center field to store district for approvals
+            center__in=district_center_names,
             status='pending'
         ).count()
         if pending_count > 0:

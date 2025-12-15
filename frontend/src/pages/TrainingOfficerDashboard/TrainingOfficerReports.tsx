@@ -294,7 +294,9 @@ const TrainingOfficerReports: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [exportModalOpen, setExportModalOpen] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+
+  // Fetch active students and graduated students count
+
 
   // Check permissions
   if (!canAccessTrainingOfficerReports()) {
@@ -309,7 +311,6 @@ const TrainingOfficerReports: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      setRefreshing(true);
 
       const data = await fetchTrainingOfficerReports();
       setReportData(data);
@@ -318,7 +319,6 @@ const TrainingOfficerReports: React.FC = () => {
       setError(err.response?.data?.error || 'Failed to load training reports. Please try again.');
     } finally {
       setLoading(false);
-      setRefreshing(false);
     }
   };
 
@@ -365,7 +365,10 @@ const TrainingOfficerReports: React.FC = () => {
         onExport={handleExport}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <div>
@@ -373,25 +376,15 @@ const TrainingOfficerReports: React.FC = () => {
             <p className="text-sm sm:text-base text-gray-600 mt-1">Comprehensive overview of training programs and performance metrics</p>
             <p className="text-xs sm:text-sm text-blue-600 mt-1">District: {reportData.user_district}</p>
           </div>
-          <div className="flex space-x-3 w-full sm:w-auto">
-            <button
-              onClick={loadReportData}
-              disabled={refreshing}
-              className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg transition-colors w-1/2 sm:w-auto ${refreshing ? 'bg-gray-400 text-white cursor-not-allowed' : 'bg-gray-600 text-white hover:bg-gray-700'
-                }`}
-            >
-              <RefreshCw className={`w-4 sm:w-5 h-4 sm:h-5 ${refreshing ? 'animate-spin' : ''}`} />
-              <span className="text-sm">{refreshing ? 'Refreshing...' : 'Refresh Data'}</span>
-            </button>
-            <button
-              onClick={() => setExportModalOpen(true)}
-              className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors w-1/2 sm:w-auto"
-            >
-              <Download className="w-4 sm:w-5 h-4 sm:h-5" />
-              <span className="text-sm">Export Training Report</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setExportModalOpen(true)}
+            className="flex items-center justify-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors w-full sm:w-auto"
+          >
+            <Download className="w-4 h-4" />
+            <span>Export Report</span>
+          </button>
         </div>
+
 
         {/* Overall Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
@@ -427,7 +420,7 @@ const TrainingOfficerReports: React.FC = () => {
         </div>
 
         {/* Training Programs Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
           <div className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -436,16 +429,6 @@ const TrainingOfficerReports: React.FC = () => {
                 <p className="text-xs text-gray-500">of {reportData.training_programs.total_programs} total</p>
               </div>
               <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Pending Approval</p>
-                <p className="text-xl sm:text-2xl font-bold text-gray-900">{reportData.training_programs.pending_approval}</p>
-              </div>
-              <AlertCircle className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
             </div>
           </div>
 
