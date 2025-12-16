@@ -2,7 +2,11 @@ from pathlib import Path
 from datetime import timedelta
 
 
+import sys
+
 BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.append(str(BASE_DIR / 'cbt_backend'))
+
 SECRET_KEY = 'django-insecure-nw7-=e#hze_rjs2j@c++32_v#a94y*9j&wb#*q&_ky64o_m&l-'
 DEBUG = True
 
@@ -34,6 +38,7 @@ INSTALLED_APPS = [
     'overview',
     'graduated_students',
     'public_analytics',
+
 ]
 
 MIDDLEWARE = [

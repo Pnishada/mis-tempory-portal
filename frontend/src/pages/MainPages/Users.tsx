@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import {
   fetchUsers, createUser, fetchCenters,
   updateUser, deleteUser, changePassword
-} from "../../api/api";
+} from "../../api/cbt_api";
 
 interface Center {
   id: number;
@@ -72,6 +72,7 @@ const Users: React.FC = () => {
   const isAdmin = userRole === "admin";
   const isDistrictManager = userRole === "district_manager";
   const isTrainingOfficer = userRole === "training_officer";
+  const isNTTAdmin = userRole === "ntt_admin";
 
   // Get role options based on user role
   const getRoleOptions = () => {
@@ -93,6 +94,10 @@ const Users: React.FC = () => {
       // Training officers can only add instructors
       return [
         { value: "instructor", label: "Instructor" },
+      ];
+    } else if (isNTTAdmin) {
+      return [
+        { value: "ntt_data_entry", label: "Data Entry" },
       ];
     }
     return [];
@@ -137,9 +142,10 @@ const Users: React.FC = () => {
         } else if (isDistrictManager) {
           // District managers can see all non-admin users in their district
           filteredUsers = u.filter(user =>
-            user.district === userDistrict &&
-            user.role !== 'admin'
+            user.district === userDistrict && user.role !== 'admin'
           );
+        } else if (isNTTAdmin) {
+          filteredUsers = u.filter(user => user.role === 'ntt_data_entry');
         }
 
         // Filter out any users without IDs for safety
@@ -185,21 +191,40 @@ const Users: React.FC = () => {
     }
 
     setSelectedUser(u);
-    setEditForm({
-      username: u.username,
-      email: u.email,
-      password: "",
-      first_name: u.first_name,
-      last_name: u.last_name,
-      role: u.role,
-      center_id: u.center?.id?.toString() || "",
-      district: u.district || "",
-      epf_no: u.epf_no || "",
-      phone_number: u.phone_number || "",
-      is_active: u.is_active,
-      is_staff: u.is_staff
-    });
     setShowEdit(true);
+
+    if (isNTTAdmin) {
+      const headOffice = centers.find(c => c.name === "Head_Office" || c.name === "Head Office");
+      setEditForm({
+        username: u.username,
+        email: u.email,
+        password: "",
+        first_name: u.first_name,
+        last_name: u.last_name,
+        role: u.role,
+        center_id: headOffice?.id.toString() || u.center?.id?.toString() || "",
+        district: headOffice?.district || u.district || "Colombo",
+        epf_no: u.epf_no || "",
+        phone_number: u.phone_number || "",
+        is_active: u.is_active,
+        is_staff: u.is_staff
+      });
+    } else {
+      setEditForm({
+        username: u.username,
+        email: u.email,
+        password: "",
+        first_name: u.first_name,
+        last_name: u.last_name,
+        role: u.role,
+        center_id: u.center?.id?.toString() || "",
+        district: u.district || "",
+        epf_no: u.epf_no || "",
+        phone_number: u.phone_number || "",
+        is_active: u.is_active,
+        is_staff: u.is_staff
+      });
+    }
   };
 
   const openPwd = (u: UserType) => {
@@ -490,6 +515,8 @@ const Users: React.FC = () => {
           training_officer: "bg-yellow-100 text-yellow-800",
           data_entry: "bg-blue-100 text-blue-800",
           instructor: "bg-orange-100 text-orange-800",
+          ntt_admin: "bg-purple-100 text-purple-800",
+          ntt_data_entry: "bg-blue-100 text-blue-800",
         };
         const label = v.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
         return (
@@ -541,14 +568,15 @@ const Users: React.FC = () => {
         </span>
       )
     },
-    ...((isAdmin || isDistrictManager || isTrainingOfficer) ? [{
+    ...((isAdmin || isDistrictManager || isTrainingOfficer || isNTTAdmin) ? [{
       key: "actions",
       label: "Actions",
       render: (_: any, row: UserType) => {
         // Check if user can perform actions on this row
         const canEdit = isAdmin ||
           (isDistrictManager && row.district === userDistrict && row.role !== 'admin') ||
-          (isTrainingOfficer && row.role === 'instructor' && row.district === userDistrict);
+          (isTrainingOfficer && row.role === 'instructor' && row.district === userDistrict) ||
+          (isNTTAdmin && row.role === 'ntt_data_entry');
 
         const canDelete = canEdit; // Same permission for delete
 
@@ -643,7 +671,7 @@ const Users: React.FC = () => {
           </div>
 
           {/* Add User Button with permissions */}
-          {(isAdmin || isDistrictManager || isTrainingOfficer) && (
+          {(isAdmin || isDistrictManager || isTrainingOfficer || isNTTAdmin) && (
             <button
               onClick={() => {
                 resetForm();
@@ -661,6 +689,14 @@ const Users: React.FC = () => {
                     ...prev,
                     district: userDistrict,
                     role: "instructor" // Force instructor role
+                  }));
+                } else if (isNTTAdmin) {
+                  const headOffice = centers.find(c => c.name === "Head_Office" || c.name === "Head Office");
+                  setAddForm(prev => ({
+                    ...prev,
+                    role: "ntt_data_entry",
+                    center_id: headOffice?.id.toString() || "",
+                    district: headOffice?.district || "Colombo"
                   }));
                 }
 
@@ -772,7 +808,7 @@ const Users: React.FC = () => {
               <Input label="Last Name" value={addForm.last_name} onChange={v => setAddForm({ ...addForm, last_name: v })} />
             </div>
 
-            {/* Role selection - limited for training officers */}
+            {/* Role selection - limited for training officers and NTT Admins */}
             <Select
               label="Role *"
               options={roleOptions}
@@ -780,7 +816,7 @@ const Users: React.FC = () => {
               onChange={v => setAddForm({ ...addForm, role: v })}
               error={formErrors.role}
               required
-              disabled={isTrainingOfficer} // Training officers can only add instructors
+              disabled={isTrainingOfficer || isNTTAdmin}
             />
 
             {/* EPF Number Field - Always show but conditionally required */}
@@ -810,7 +846,7 @@ const Users: React.FC = () => {
             {isAdmin && (
               <Input label="District" value={addForm.district} onChange={v => setAddForm({ ...addForm, district: v })} error={formErrors.district} />
             )}
-            {(isDistrictManager || isTrainingOfficer) && (
+            {(isDistrictManager || isTrainingOfficer || isNTTAdmin) && (
               <Input
                 label="District"
                 value={addForm.district}
@@ -820,128 +856,143 @@ const Users: React.FC = () => {
               />
             )}
 
-            <Select label="Center (Optional)" options={[{ value: "", label: "No Center" }, ...centers.map(c => ({ value: c.id.toString(), label: c.name }))]} value={addForm.center_id} onChange={v => setAddForm({ ...addForm, center_id: v })} />
+            {isNTTAdmin ? (
+              <Input label="Center" value="Head Office" onChange={() => { }} disabled />
+            ) : (
+              <Select label="Center (Optional)" options={[{ value: "", label: "No Center" }, ...centers.map(c => ({ value: c.id.toString(), label: c.name }))]} value={addForm.center_id} onChange={v => setAddForm({ ...addForm, center_id: v })} />
+            )}
             <Checkboxes active={addForm.is_active} staff={addForm.is_staff} onActive={v => setAddForm({ ...addForm, is_active: v })} onStaff={v => setAddForm({ ...addForm, is_staff: v })} />
             <ModalFooter onCancel={() => { setShowAdd(false); resetForm(); }} submitText={isTrainingOfficer ? "Create Instructor" : "Create User"} />
           </form>
         </Modal>
-      )}
+      )
+      }
 
-      {showEdit && selectedUser && (
-        <Modal title="Edit User" onClose={() => { setShowEdit(false); resetForm(); }}>
-          <form onSubmit={handleEdit} className="space-y-5">
-            {formErrors.general && <Alert text={formErrors.general} />}
-            <Input label="Username *" value={editForm.username} onChange={v => setEditForm({ ...editForm, username: v })} error={formErrors.username} required />
-            <Input label="Email *" type="email" value={editForm.email} onChange={v => setEditForm({ ...editForm, email: v })} error={formErrors.email} required />
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="First Name" value={editForm.first_name} onChange={v => setEditForm({ ...editForm, first_name: v })} />
-              <Input label="Last Name" value={editForm.last_name} onChange={v => setEditForm({ ...editForm, last_name: v })} />
-            </div>
+      {
+        showEdit && selectedUser && (
+          <Modal title="Edit User" onClose={() => { setShowEdit(false); resetForm(); }}>
+            <form onSubmit={handleEdit} className="space-y-5">
+              {formErrors.general && <Alert text={formErrors.general} />}
+              <Input label="Username *" value={editForm.username} onChange={v => setEditForm({ ...editForm, username: v })} error={formErrors.username} required />
+              <Input label="Email *" type="email" value={editForm.email} onChange={v => setEditForm({ ...editForm, email: v })} error={formErrors.email} required />
+              <div className="grid grid-cols-2 gap-4">
+                <Input label="First Name" value={editForm.first_name} onChange={v => setEditForm({ ...editForm, first_name: v })} />
+                <Input label="Last Name" value={editForm.last_name} onChange={v => setEditForm({ ...editForm, last_name: v })} />
+              </div>
 
-            {/* Role selection - limited for training officers */}
-            <Select
-              label="Role *"
-              options={roleOptions}
-              value={editForm.role}
-              onChange={v => setEditForm({ ...editForm, role: v })}
-              error={formErrors.role}
-              required
-              disabled={isTrainingOfficer} // Training officers can only edit instructors
-            />
-
-            {/* EPF Number Field - Always show but conditionally required */}
-            <div className={editForm.role === 'instructor' ? 'opacity-50' : ''}>
-              <Input
-                label={editForm.role === 'instructor' ? "EPF Number (Not required for instructors)" : "EPF Number *"}
-                value={editForm.epf_no}
-                onChange={v => {
-                  // Auto-uppercase EPF numbers for consistency
-                  setEditForm({ ...editForm, epf_no: v.toUpperCase() })
-                }}
-                error={formErrors.epf_no}
-                required={editForm.role !== 'instructor'}
-                disabled={editForm.role === 'instructor'}
-                placeholder="e.g., GAL/89/78, 12345, AB-1234/X"
+              {/* Role selection - limited for training officers */}
+              <Select
+                label="Role *"
+                options={roleOptions}
+                value={editForm.role}
+                onChange={v => setEditForm({ ...editForm, role: v })}
+                error={formErrors.role}
+                required
+                disabled={isTrainingOfficer} // Training officers can only edit instructors
               />
-              <p className="text-xs text-gray-500 mt-1">
-                {editForm.role === 'instructor'
-                  ? "Instructors do not require EPF numbers"
-                  : "Enter EPF number in any format (letters, numbers, special characters allowed)"}
+
+              {/* EPF Number Field - Always show but conditionally required */}
+              <div className={editForm.role === 'instructor' ? 'opacity-50' : ''}>
+                <Input
+                  label={editForm.role === 'instructor' ? "EPF Number (Not required for instructors)" : "EPF Number *"}
+                  value={editForm.epf_no}
+                  onChange={v => {
+                    // Auto-uppercase EPF numbers for consistency
+                    setEditForm({ ...editForm, epf_no: v.toUpperCase() })
+                  }}
+                  error={formErrors.epf_no}
+                  required={editForm.role !== 'instructor'}
+                  disabled={editForm.role === 'instructor'}
+                  placeholder="e.g., GAL/89/78, 12345, AB-1234/X"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {editForm.role === 'instructor'
+                    ? "Instructors do not require EPF numbers"
+                    : "Enter EPF number in any format (letters, numbers, special characters allowed)"}
+                </p>
+              </div>
+
+              <Input label="Phone Number" value={editForm.phone_number} onChange={v => setEditForm({ ...editForm, phone_number: v })} />
+
+              {/* District field - auto-filled for non-admins */}
+              {isAdmin && (
+                <Input label="District" value={editForm.district} onChange={v => setEditForm({ ...editForm, district: v })} error={formErrors.district} />
+              )}
+              {(isDistrictManager || isTrainingOfficer || isNTTAdmin) && (
+                <Input
+                  label="District"
+                  value={editForm.district}
+                  onChange={v => setEditForm({ ...editForm, district: v })}
+                  error={formErrors.district}
+                  disabled
+                />
+              )}
+
+              {isNTTAdmin ? (
+                <Input label="Center" value="Head Office" onChange={() => { }} disabled />
+              ) : (
+                <Select label="Center (Optional)" options={[{ value: "", label: "No Center" }, ...centers.map(c => ({ value: c.id.toString(), label: c.name }))]} value={editForm.center_id} onChange={v => setEditForm({ ...editForm, center_id: v })} />
+              )}
+              <Checkboxes active={editForm.is_active} staff={editForm.is_staff} onActive={v => setEditForm({ ...editForm, is_active: v })} onStaff={v => setEditForm({ ...editForm, is_staff: v })} />
+              <ModalFooter onCancel={() => { setShowEdit(false); resetForm(); }} submitText="Save Changes" />
+            </form>
+          </Modal>
+        )
+      }
+
+      {
+        showPwd && selectedUser && (
+          <Modal title="Change Password" onClose={() => { setShowPwd(false); resetForm(); }}>
+            <form onSubmit={handlePwd} className="space-y-5">
+              <Input label="New Password *" type="password" value={pwdForm.new_password} onChange={v => setPwdForm({ new_password: v })} error={formErrors.new_password} required minLength={8} />
+              <ModalFooter onCancel={() => { setShowPwd(false); resetForm(); }} submitText="Change Password" />
+            </form>
+          </Modal>
+        )
+      }
+
+      {
+        showDelete && selectedUser && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+            <div className="fixed inset-0" onClick={() => setShowDelete(false)}></div>
+            <div className="relative bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl">
+              <div className="flex items-center space-x-2 text-red-600 mb-4">
+                <AlertCircle className="w-5 h-5" />
+                <h3 className="font-semibold text-lg">Delete User?</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-2">
+                Are you sure you want to delete <strong>{selectedUser.username}</strong>?
               </p>
-            </div>
+              <p className="text-xs text-gray-500 mb-6">This action <strong>cannot be undone</strong>.</p>
 
-            <Input label="Phone Number" value={editForm.phone_number} onChange={v => setEditForm({ ...editForm, phone_number: v })} />
-
-            {/* District field - auto-filled for non-admins */}
-            {isAdmin && (
-              <Input label="District" value={editForm.district} onChange={v => setEditForm({ ...editForm, district: v })} error={formErrors.district} />
-            )}
-            {(isDistrictManager || isTrainingOfficer) && (
-              <Input
-                label="District"
-                value={editForm.district}
-                onChange={v => setEditForm({ ...editForm, district: v })}
-                error={formErrors.district}
-                disabled
-              />
-            )}
-
-            <Select label="Center (Optional)" options={[{ value: "", label: "No Center" }, ...centers.map(c => ({ value: c.id.toString(), label: c.name }))]} value={editForm.center_id} onChange={v => setEditForm({ ...editForm, center_id: v })} />
-            <Checkboxes active={editForm.is_active} staff={editForm.is_staff} onActive={v => setEditForm({ ...editForm, is_active: v })} onStaff={v => setEditForm({ ...editForm, is_staff: v })} />
-            <ModalFooter onCancel={() => { setShowEdit(false); resetForm(); }} submitText="Save Changes" />
-          </form>
-        </Modal>
-      )}
-
-      {showPwd && selectedUser && (
-        <Modal title="Change Password" onClose={() => { setShowPwd(false); resetForm(); }}>
-          <form onSubmit={handlePwd} className="space-y-5">
-            <Input label="New Password *" type="password" value={pwdForm.new_password} onChange={v => setPwdForm({ new_password: v })} error={formErrors.new_password} required minLength={8} />
-            <ModalFooter onCancel={() => { setShowPwd(false); resetForm(); }} submitText="Change Password" />
-          </form>
-        </Modal>
-      )}
-
-      {showDelete && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-          <div className="fixed inset-0" onClick={() => setShowDelete(false)}></div>
-          <div className="relative bg-white rounded-xl p-6 max-w-sm w-full shadow-2xl">
-            <div className="flex items-center space-x-2 text-red-600 mb-4">
-              <AlertCircle className="w-5 h-5" />
-              <h3 className="font-semibold text-lg">Delete User?</h3>
-            </div>
-            <p className="text-sm text-gray-600 mb-2">
-              Are you sure you want to delete <strong>{selectedUser.username}</strong>?
-            </p>
-            <p className="text-xs text-gray-500 mb-6">This action <strong>cannot be undone</strong>.</p>
-
-            <div className="flex justify-end space-x-3">
-              <button
-                onClick={() => setShowDelete(false)}
-                disabled={deleteLoading}
-                className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleteLoading}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center space-x-2 disabled:opacity-70 font-medium"
-              >
-                {deleteLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Deleting...</span>
-                  </>
-                ) : (
-                  <span>Delete</span>
-                )}
-              </button>
+              <div className="flex justify-end space-x-3">
+                <button
+                  onClick={() => setShowDelete(false)}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleteLoading}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center space-x-2 disabled:opacity-70 font-medium"
+                >
+                  {deleteLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Deleting...</span>
+                    </>
+                  ) : (
+                    <span>Delete</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 

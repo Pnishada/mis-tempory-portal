@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { User, MapPin, Building, BookOpen, Calendar, Download, Printer } from 'lucide-react';
-import { type StudentType } from '../api/api';
+import { type StudentType } from '../api/cbt_api';
 import { QRCodeSVG } from 'qrcode.react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';

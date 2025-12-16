@@ -149,7 +149,7 @@ class IsAdminOrDistrictManagerOrTrainingOfficer(permissions.BasePermission):
         if not request.user.is_authenticated:
             return False
         
-        if request.user.role in ["admin", "district_manager", "training_officer"]:
+        if request.user.role in ["admin", "district_manager", "training_officer", "ntt_admin"]:
             return True
         
         return False
@@ -172,6 +172,12 @@ class IsAdminOrDistrictManagerOrTrainingOfficer(permissions.BasePermission):
                 return False
             
             return True
+        
+        if request.user.role == "ntt_admin":
+             # NTT Admin can only access NTT users
+            if obj.role in ["ntt_admin", "ntt_data_entry"]:
+                return True
+            return False
         
         return False
 
@@ -283,6 +289,10 @@ class UserListCreateView(generics.ListCreateAPIView):
                 role='instructor'
             )
         
+        # NTT Admin: can see NTT users
+        if user.role == "ntt_admin":
+             return queryset.filter(role__in=["ntt_admin", "ntt_data_entry"])
+        
         # Default: return empty queryset for unauthorized users
         return queryset.none()
 
@@ -301,6 +311,13 @@ class UserListCreateView(generics.ListCreateAPIView):
             if serializer.validated_data.get('role') != 'instructor':
                 raise serializers.ValidationError({
                     "role": "Training officers can only create instructors."
+                })
+        
+        # NTT Admin can only create NTT Data Entry or other NTT Admins (optional)
+        if user.role == 'ntt_admin':
+             if serializer.validated_data.get('role') not in ['ntt_data_entry', 'ntt_admin']:
+                raise serializers.ValidationError({
+                    "role": "NTT Admins can only create NTT Data Entry or NTT Admin users."
                 })
         
         # District managers cannot create other district managers
@@ -352,6 +369,10 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 district=user.district,
                 role='instructor'
             )
+
+        # NTT Admin: can see NTT users
+        if user.role == "ntt_admin":
+             return queryset.filter(role__in=["ntt_admin", "ntt_data_entry"])
         
         # Default: return empty queryset for unauthorized users
         return queryset.none()

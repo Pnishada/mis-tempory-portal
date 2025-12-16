@@ -9,7 +9,7 @@ import Home from "./src/pages/MainPages/Home";
 import Login from "./src/pages/MainPages/Login";
 import NotFound from "./src/pages/MainPages/NotFound";
 import Dashboard from "./src/pages/MainPages/Dashboard"; // ← NEW
-import PublicGraduatesPerformance from "./src/pages/PublicGraduatesPerformance";
+import PublicGraduatesPerformance from "./src/pages/MainPages/PublicGraduatesPerformance";
 
 const App: React.FC = () => {
   return (

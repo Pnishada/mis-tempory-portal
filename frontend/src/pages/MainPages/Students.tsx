@@ -24,7 +24,7 @@ import {
   type CourseType,
   getUserRole,
   getUserDistrict
-} from '../../api/api';
+} from '../../api/cbt_api';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 

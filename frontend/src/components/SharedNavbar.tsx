@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, LogOut, User, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface NavbarProps {
-  userRole: 'admin' | 'district_manager' | 'training_officer' | 'data_entry' | 'instructor';
+  userRole: 'admin' | 'district_manager' | 'training_officer' | 'data_entry' | 'instructor' | 'ntt_admin' | 'ntt_data_entry';
   userName: string;
   children: React.ReactNode;
 }
@@ -60,6 +60,15 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
           { path: '/dashboard/instructor/courses', label: 'My Courses', icon: '📚' },
           { path: '/dashboard/instructor/student', label: 'Students', icon: '👨‍🎓' },
           { path: '/dashboard/instructor/attendance', label: 'Attendance', icon: '📝' },
+        ];
+      case 'ntt_admin':
+        return [
+          { path: '/dashboard/ntt-admin', label: 'Overview', icon: '📊' },
+          { path: '/dashboard/ntt-admin/users', label: 'Users', icon: '👥' }, // Reuse existing Users component if possible
+        ];
+      case 'ntt_data_entry':
+        return [
+          { path: '/dashboard/ntt-data-entry', label: 'Overview', icon: '📊' },
         ];
       default:
         return [];

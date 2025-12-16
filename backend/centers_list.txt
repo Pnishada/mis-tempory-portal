@@ -1,0 +1,15 @@
+Head_Office
+NAITA Matara Center
+NAITA Tangalle
+NAITA Badulla
+NAITA Matara
+NAITA Colombo Training Center
+NAITA Gampaha Training Center
+NAITA Kalutara Training Center
+NAITA Kandy Training Center
+NAITA Galle Training Center
+NAITA Matara Training Center
+NAITA Jaffna Training Center
+NAITA Kurunegala Training Center
+NAITA Anuradhapura Training Center
+NAITA Ratnapura Training Center

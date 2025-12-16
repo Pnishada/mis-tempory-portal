@@ -4,20 +4,23 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('username', 'email', 'role', 'district', 'center', 'is_staff', 'is_active')
-    list_filter = ('role', 'district', 'center', 'is_staff', 'is_active')
+    list_display = ('username', 'email', 'system_type', 'role', 'district', 'center', 'is_staff', 'is_active')
+    list_filter = ('system_type', 'role', 'district', 'center', 'is_staff', 'is_active')
     fieldsets = (
         (None, {'fields': ('username', 'email', 'password')}),
+        ('Access Control', {'fields': ('system_type', 'role', 'is_active', 'is_staff', 'groups', 'user_permissions')}),
         ('Personal info', {'fields': ('first_name', 'last_name')}),
         ('Location Info', {'fields': ('district', 'center')}),
-        ('Permissions', {'fields': ('role', 'is_staff', 'is_active', 'groups', 'user_permissions')}),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'email', 'role', 'district', 'center', 'password1', 'password2', 'is_staff', 'is_active')}
+            'fields': ('username', 'email', 'system_type', 'role', 'district', 'center', 'password1', 'password2', 'is_staff', 'is_active')}
         ),
     )
     search_fields = ('username', 'email', 'district')
     ordering = ('username',)
+
+    class Media:
+        js = ('users/js/admin_role_filter.js',)

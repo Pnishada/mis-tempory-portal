@@ -19,7 +19,7 @@ import {
   type UserType,
   type Center,
   type CourseType
-} from '../../api/api';
+} from '../../api/cbt_api';
 
 // Deactivation Confirmation Modal Component
 const DeactivationConfirmModal: React.FC<{
@@ -114,8 +114,8 @@ const DeactivationConfirmModal: React.FC<{
               }}
               disabled={loading || (isSelf && isCurrentlyActive)}
               className={`px-4 py-2 rounded-lg text-white transition-colors flex items-center justify-center min-w-[120px] ${isCurrentlyActive
-                  ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-300'
-                  : 'bg-green-600 hover:bg-green-700 disabled:bg-green-300'
+                ? 'bg-red-600 hover:bg-red-700 disabled:bg-red-300'
+                : 'bg-green-600 hover:bg-green-700 disabled:bg-green-300'
                 } disabled:opacity-50 disabled:cursor-not-allowed`}
             >
               {loading ? (
@@ -448,8 +448,8 @@ const Instructors: React.FC = () => {
         }}
         disabled={deletingId === instructor.id}
         className={`px-4 py-2 rounded-lg transition-colors flex items-center justify-center ${instructor.is_active
-            ? 'bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50'
-            : 'bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50'
+          ? 'bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50'
+          : 'bg-green-100 text-green-700 hover:bg-green-200 disabled:opacity-50'
           } ${isSelf && instructor.is_active ? 'cursor-not-allowed opacity-60' : ''}`}
         title={isSelf && instructor.is_active ? "You cannot deactivate your own account" : ""}
       >
@@ -794,10 +794,10 @@ const Instructors: React.FC = () => {
                                         <p className="text-sm text-gray-500 truncate">{course.code} • {course.duration}</p>
                                       </div>
                                       <span className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${course.status === 'Active' ? 'bg-green-100 text-green-800' :
-                                          course.status === 'Approved' ? 'bg-blue-100 text-blue-800' :
-                                            course.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                                              course.status === 'Rejected' ? 'bg-red-100 text-red-800' :
-                                                'bg-gray-100 text-gray-800'
+                                        course.status === 'Approved' ? 'bg-blue-100 text-blue-800' :
+                                          course.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                                            course.status === 'Rejected' ? 'bg-red-100 text-red-800' :
+                                              'bg-gray-100 text-gray-800'
                                         }`}>
                                         {course.status}
                                       </span>

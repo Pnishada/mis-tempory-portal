@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Lock, Eye, EyeOff, Loader2, AlertTriangle, ArrowLeft, Shield, CheckCircle } from "lucide-react";
-import { loginUser, checkAccountStatus, logoutUser } from "../../api/api";
+import { loginUser, checkAccountStatus, logoutUser } from "../../api/cbt_api";
 
 // Account Status Check Component (Integrated)
 const AccountStatusCheck: React.FC = () => {

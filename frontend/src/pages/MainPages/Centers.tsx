@@ -23,7 +23,7 @@ import {
   updateCenter,
   deleteCenter,
   type Center,
-} from "../../api/api";
+} from "../../api/cbt_api";
 
 const Centers: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -143,9 +143,9 @@ const Centers: React.FC = () => {
       closeAddModal();
       toast.success("Center added successfully");
     } catch (err: any) {
-      const errorMsg = err.response?.data?.name?.[0] || 
-                      err.response?.data?.detail || 
-                      "Failed to add center";
+      const errorMsg = err.response?.data?.name?.[0] ||
+        err.response?.data?.detail ||
+        "Failed to add center";
       toast.error(errorMsg);
     } finally {
       setSubmitting(false);
@@ -320,11 +320,10 @@ const Centers: React.FC = () => {
       key: "status",
       label: "Status",
       render: (value: string | undefined) => (
-        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-          value === "Active" 
-            ? "bg-green-100 text-green-800 border border-green-200" 
+        <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${value === "Active"
+            ? "bg-green-100 text-green-800 border border-green-200"
             : "bg-red-100 text-red-800 border border-red-200"
-        }`}>
+          }`}>
           {value || "—"}
         </span>
       ),
@@ -359,7 +358,7 @@ const Centers: React.FC = () => {
     const totalStudents = centers.reduce((s, c) => s + (c.student_count ?? 0), 0);  // CHANGED
     const totalInstructors = centers.reduce((s, c) => s + (c.instructor_count ?? 0), 0);  // CHANGED
     const activeCenters = centers.filter(c => c.status === "Active").length;
-    
+
     // Calculate average performance score
     const performanceScores = centers
       .filter(c => c.performance)
@@ -372,7 +371,7 @@ const Centers: React.FC = () => {
         };
         return scores[c.performance!] || 0;
       });
-    
+
     const avgPerformance = performanceScores.length > 0
       ? Math.round(performanceScores.reduce((a, b) => a + b, 0) / performanceScores.length)
       : 0;
@@ -419,7 +418,7 @@ const Centers: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Header */}
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
@@ -476,7 +475,7 @@ const Centers: React.FC = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               />
             </div>
-            
+
             <select
               value={districtFilter}
               onChange={e => setDistrictFilter(e.target.value)}
@@ -541,13 +540,13 @@ const Centers: React.FC = () => {
             <div className="text-center py-12">
               <Building2 className="mx-auto h-12 w-12 text-gray-400" />
               <h3 className="mt-2 text-sm font-medium text-gray-900">
-                {centers.length === 0 
-                  ? "No training centers found" 
+                {centers.length === 0
+                  ? "No training centers found"
                   : "No centers match your search"
                 }
               </h3>
               <p className="mt-1 text-sm text-gray-500">
-                {centers.length === 0 
+                {centers.length === 0
                   ? "Get started by adding your first training center."
                   : "Try adjusting your search or filter criteria."
                 }
@@ -630,8 +629,8 @@ const Centers: React.FC = () => {
               {showAddModal ? "Add New Training Center" : "Edit Training Center"}
             </h2>
             <p className="text-gray-600 mb-6">
-              {showAddModal 
-                ? "Register a new NAITA training center in the system" 
+              {showAddModal
+                ? "Register a new NAITA training center in the system"
                 : `Update details for ${editingCenter?.name}`
               }
             </p>

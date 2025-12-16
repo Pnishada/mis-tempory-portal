@@ -8,11 +8,20 @@ class User(AbstractUser):
         ('admin', 'Admin'),
         ('district_manager', 'District Manager'),
         ('training_officer', 'Training Officer'),
-        ('data_entry', 'Data Entry'),
+        ('data_entry', 'Data Entry'),  # CBT Data Entry
         ('instructor', 'Instructor'),
+        # NTT Roles
+        ('ntt_admin', 'Admin'),
+        ('ntt_data_entry', 'Data Entry'),
+    )
+
+    SYSTEM_CHOICES = (
+        ('CBT', 'CBT'),
+        ('NTT', 'NTT'),
     )
 
     email = models.EmailField(unique=True)
+    system_type = models.CharField(max_length=10, choices=SYSTEM_CHOICES, default='CBT', verbose_name="System Type")
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='data_entry')
     center = models.ForeignKey(
         Center,

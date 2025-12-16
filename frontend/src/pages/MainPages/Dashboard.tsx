@@ -13,31 +13,35 @@ import Students from "./Students";
 import GraduatedStudent from "./GraduatedStudent";
 
 // ADMIN
-import HeadOfficeOverview from "../HeadOfficeDashboard/HeadOfficeOverview";
-import HeadOfficeCourses from "../HeadOfficeDashboard/HeadOfficeCourses";
-import HeadOfficeApprovals from "../HeadOfficeDashboard/HeadOfficeApprovals";
-import HeadOfficeReports from "../HeadOfficeDashboard/HeadOfficeReports";
+import HeadOfficeOverview from "../cbt_pages/HeadOfficeDashboard/HeadOfficeOverview";
+import HeadOfficeCourses from "../cbt_pages/HeadOfficeDashboard/HeadOfficeCourses";
+import HeadOfficeApprovals from "../cbt_pages/HeadOfficeDashboard/HeadOfficeApprovals";
+import HeadOfficeReports from "../cbt_pages/HeadOfficeDashboard/HeadOfficeReports";
 
 // DISTRICT MANAGER
-import DistrictManagerOverview from "../DistrictManagerDashboard/DistrictManagerOverview";
-import DistrictManagerCourses from "../DistrictManagerDashboard/DistrictManagerCourses";
-import DistrictManagerApprovals from "../DistrictManagerDashboard/DistrictManagerApprovals";
-import DistrictManagerReports from "../DistrictManagerDashboard/DistrictManagerReports";
+import DistrictManagerOverview from "../cbt_pages/DistrictManagerDashboard/DistrictManagerOverview";
+import DistrictManagerCourses from "../cbt_pages/DistrictManagerDashboard/DistrictManagerCourses";
+import DistrictManagerApprovals from "../cbt_pages/DistrictManagerDashboard/DistrictManagerApprovals";
+import DistrictManagerReports from "../cbt_pages/DistrictManagerDashboard/DistrictManagerReports";
 
 // TRAINING OFFICER
-import TrainingOfficerCourses from "../TrainingOfficerDashboard/TrainingOfficerCourses";
-import TrainingOfficerOverview from "../TrainingOfficerDashboard/TrainingOfficerOverview";
-import TrainingOfficerReports from "../TrainingOfficerDashboard/TrainingOfficerReports";
+import TrainingOfficerCourses from "../cbt_pages/TrainingOfficerDashboard/TrainingOfficerCourses";
+import TrainingOfficerOverview from "../cbt_pages/TrainingOfficerDashboard/TrainingOfficerOverview";
+import TrainingOfficerReports from "../cbt_pages/TrainingOfficerDashboard/TrainingOfficerReports";
 
 // DATA ENTRY
-import DataEntryStudents from "../DataEntryDashboard/DataEntryStudents";
-import DataEntryOverview from "../DataEntryDashboard/DataEntryOverview";
+import DataEntryStudents from "../cbt_pages/DataEntryDashboard/DataEntryStudents";
+import DataEntryOverview from "../cbt_pages/DataEntryDashboard/DataEntryOverview";
 
 // INSTRUCTOR
-import InstructorOverview from "../InstructorDashboard/InstructorOverview";
-import InstructorCourses from "../InstructorDashboard/InstructorCourses";
-import InstructorStudents from "../InstructorDashboard/InstructorStudents";
-import InstructorAttendance from "../InstructorDashboard/InstructorAttendance";
+import InstructorOverview from "../cbt_pages/InstructorDashboard/InstructorOverview";
+import InstructorCourses from "../cbt_pages/InstructorDashboard/InstructorCourses";
+import InstructorStudents from "../cbt_pages/InstructorDashboard/InstructorStudents";
+import InstructorAttendance from "../cbt_pages/InstructorDashboard/InstructorAttendance";
+
+// NTT IMPORTS
+import NTTAdminDashboard from "../ntt_pages/NTTAdminDashboard";
+import NTTDataEntryDashboard from "../ntt_pages/DataEntryDashboards/NTTDataEntryDashboard";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -65,6 +69,8 @@ const Dashboard = () => {
       training_officer: "/dashboard/training_officer",
       data_entry: "/dashboard/data-entry",
       instructor: "/dashboard/instructor",
+      ntt_admin: "/dashboard/ntt-admin",
+      ntt_data_entry: "/dashboard/ntt-data-entry",
     };
     return paths[r] || "/dashboard/admin";
   };
@@ -122,6 +128,18 @@ const Dashboard = () => {
       if (p === "/dashboard/instructor/courses") return <InstructorCourses />;
       if (p === "/dashboard/instructor/student") return <InstructorStudents />;
       if (p === "/dashboard/instructor/attendance") return <InstructorAttendance />;
+    }
+
+    // NTT ADMIN
+    if (role === "ntt_admin") {
+      if (p === "/dashboard/ntt-admin") return <NTTAdminDashboard />;
+      // Reuse Users component for now if compatible, or just the dashboard
+      if (p === "/dashboard/ntt-admin/users") return <Users />;
+    }
+
+    // NTT DATA ENTRY
+    if (role === "ntt_data_entry") {
+      if (p === "/dashboard/ntt-data-entry") return <NTTDataEntryDashboard />;
     }
 
     return <div className="p-10">Page Not Found</div>;

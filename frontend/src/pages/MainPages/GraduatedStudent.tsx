@@ -24,7 +24,7 @@ import {
     type GraduatedStudentListType,
     type GraduatedStudentStats,
     type CompletedStudentType,
-} from "../../api/api";
+} from "../../api/cbt_api";
 
 const GraduatedStudent: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState("");
