@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'approvals',
     'overview',
     'graduated_students',
+    'public_analytics',
 ]
 
 MIDDLEWARE = [

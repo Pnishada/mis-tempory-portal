@@ -9,6 +9,7 @@ import Home from "./src/pages/MainPages/Home";
 import Login from "./src/pages/MainPages/Login";
 import NotFound from "./src/pages/MainPages/NotFound";
 import Dashboard from "./src/pages/MainPages/Dashboard"; // ← NEW
+import PublicGraduatesPerformance from "./src/pages/PublicGraduatesPerformance";
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/public/graduates-performance" element={<PublicGraduatesPerformance />} />
 
             {/* ONE DASHBOARD FOR ALL ROLES */}
             <Route path="/dashboard/*" element={<Dashboard />} />

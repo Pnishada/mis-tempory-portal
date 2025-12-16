@@ -20,6 +20,7 @@ urlpatterns = [
     path('api/attendance/', include('attendance.urls')),
     path('api/instructors/', include('instructors.urls')),
     path('api/graduated/', include('graduated_students.urls')),
+    path('api/public/', include('public_analytics.urls')),
 ]
 
 if settings.DEBUG:
