@@ -327,29 +327,7 @@ const HeadOfficeReports: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch active students and graduated students count
-  const [summaryStats, setSummaryStats] = useState({
-    activeStudents: 0,
-    graduatedStudents: 0,
-    loading: true
-  });
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await import('../../api/api').then(module => module.fetchOverview());
-        setSummaryStats({
-          activeStudents: response.active_students || 0,
-          graduatedStudents: response.graduated_students || 0,
-          loading: false
-        });
-      } catch (error) {
-        console.error('Failed to fetch summary stats', error);
-        setSummaryStats(prev => ({ ...prev, loading: false }));
-      }
-    };
-    fetchStats();
-  }, []);
 
   // Check permissions on component mount
   useEffect(() => {

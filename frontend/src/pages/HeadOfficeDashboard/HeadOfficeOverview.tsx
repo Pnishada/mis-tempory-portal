@@ -46,7 +46,7 @@ const Overview: React.FC = () => {
     total_centers = 0,
     active_students = 0,
     graduated_students = 0,
-    total_instructors = 0,
+
     completion_rate = 0,
     enrollment_data = [],
     center_performance_data = [],
