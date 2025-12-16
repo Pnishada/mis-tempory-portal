@@ -104,13 +104,6 @@ const Home: React.FC = () => {
             </div>
             <nav className="hidden md:flex items-center space-x-8">
               <Link
-                to="/public/graduates-performance"
-                className="text-gray-600 hover:text-green-600 font-medium transition-colors text-sm uppercase tracking-wide flex items-center"
-              >
-                <GraduationCap className="w-4 h-4 mr-2 text-green-600" />
-                Student Portal
-              </Link>
-              <Link
                 to="/login"
                 className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm font-bold uppercase tracking-wide shadow-md hover:shadow-lg"
               >
@@ -148,7 +141,7 @@ const Home: React.FC = () => {
               className="bg-white border border-green-200 text-green-700 px-8 py-3 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center space-x-2"
             >
               <GraduationCap className="w-5 h-5 text-green-600" />
-              <span>Visit Student Portal</span>
+              <span>Visit Student Employability Tracking</span>
             </Link>
           </div>
         </div>
