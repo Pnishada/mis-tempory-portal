@@ -64,11 +64,16 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
       case 'ntt_admin':
         return [
           { path: '/dashboard/ntt-admin', label: 'Overview', icon: '📊' },
-          { path: '/dashboard/ntt-admin/users', label: 'Users', icon: '👥' }, // Reuse existing Users component if possible
+          { path: '/dashboard/ntt-admin/users', label: 'Users', icon: '👥' }, 
+          {path: '/dashboard/ntt-admin/applications', label: 'Applications', icon: '📄' },
+          {path: '/dashboard/ntt-admin/student-performance', label: 'Student Performance', icon: '📚' },
+          {path: '/dashboard/ntt-admin/reports', label: 'Reports', icon: '📈' },
         ];
       case 'ntt_data_entry':
         return [
           { path: '/dashboard/ntt-data-entry', label: 'Overview', icon: '📊' },
+          { path: '/dashboard/ntt-data-entry/students', label: 'Students', icon: '👨‍🎓' },
+          { path: '/dashboard/ntt-data-entry/exams', label: 'Exams', icon: '📝' },
         ];
       default:
         return [];

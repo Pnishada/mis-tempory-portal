@@ -39,9 +39,17 @@ import InstructorCourses from "../cbt_pages/InstructorDashboard/InstructorCourse
 import InstructorStudents from "../cbt_pages/InstructorDashboard/InstructorStudents";
 import InstructorAttendance from "../cbt_pages/InstructorDashboard/InstructorAttendance";
 
-// NTT IMPORTS
-import NTTAdminDashboard from "../ntt_pages/NTTAdminDashboard";
+// NTT ADMIN
+import NTTAdminDashboard from "../ntt_pages/AdminDashbords/NTTAdminDashboard";
+import NTTApplicationsList from "../ntt_pages/DataEntryDashboards/NTTApplicationsList";
+import NTTStudentPerformance from "../ntt_pages/AdminDashbords/NTTStudentPerformance";
+import NTTResultsReports from "../ntt_pages/AdminDashbords/NTTResultsReports";
+
+// NTT DATA ENTRY
 import NTTDataEntryDashboard from "../ntt_pages/DataEntryDashboards/NTTDataEntryDashboard";
+import NTTStudentPage from "../ntt_pages/DataEntryDashboards/NTTStudentPage";
+import NTTExamManagement from "../ntt_pages/DataEntryDashboards/NNTTExamManagement";
+
 
 const Dashboard = () => {
   const location = useLocation();
@@ -133,13 +141,17 @@ const Dashboard = () => {
     // NTT ADMIN
     if (role === "ntt_admin") {
       if (p === "/dashboard/ntt-admin") return <NTTAdminDashboard />;
-      // Reuse Users component for now if compatible, or just the dashboard
       if (p === "/dashboard/ntt-admin/users") return <Users />;
+      if (p === "/dashboard/ntt-admin/applications") return <NTTApplicationsList />;
+      if (p === "/dashboard/ntt-admin/student-performance") return <NTTStudentPerformance />;
+      if (p === "/dashboard/ntt-admin/reports") return <NTTResultsReports />;
     }
 
     // NTT DATA ENTRY
     if (role === "ntt_data_entry") {
       if (p === "/dashboard/ntt-data-entry") return <NTTDataEntryDashboard />;
+      if (p === "/dashboard/ntt-data-entry/students") return <NTTStudentPage />;
+      if (p === "/dashboard/ntt-data-entry/exams") return <NTTExamManagement />;
     }
 
     return <div className="p-10">Page Not Found</div>;
