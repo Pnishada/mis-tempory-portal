@@ -1,47 +1,45 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { 
-  Users, FileText, Clock, Calendar, 
+import {
+  Users, FileText, Clock, Calendar,
   AlertCircle, CheckCircle, XCircle, TrendingUp,
-  ArrowUpRight, ArrowDownRight
+  ArrowUpRight, ArrowDownRight, TrendingDown, Award, Star
 } from 'lucide-react';
 
 const NTTDataEntryDashboard: React.FC = () => {
-  const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState('month');
 
   const stats = [
-    { 
-      title: 'Total Students', 
-      value: '1,248', 
-      change: '+12.5%', 
+    {
+      title: 'Total Students',
+      value: '1,248',
+      change: '+12.5%',
       changeType: 'increase',
       icon: <Users className="w-6 h-6" />,
       color: 'bg-blue-500',
       trendData: [65, 70, 75, 80, 85, 90, 95]
     },
-    { 
-      title: 'Pending Data Entry', 
-      value: '23', 
-      change: '-5.2%', 
+    {
+      title: 'Pending Data Entry',
+      value: '23',
+      change: '-5.2%',
       changeType: 'decrease',
       icon: <FileText className="w-6 h-6" />,
       color: 'bg-yellow-500',
       trendData: [30, 28, 26, 24, 23, 22, 23]
     },
-    { 
-      title: 'Data Accuracy', 
-      value: '98.2%', 
-      change: '+1.3%', 
+    {
+      title: 'Data Accuracy',
+      value: '98.2%',
+      change: '+1.3%',
       changeType: 'increase',
       icon: <CheckCircle className="w-6 h-6" />,
       color: 'bg-green-500',
       trendData: [95, 96, 96.5, 97, 97.5, 98, 98.2]
     },
-    { 
-      title: 'Avg. Time/Student', 
-      value: '15m', 
-      change: '-2.5m', 
+    {
+      title: 'Avg. Time/Student',
+      value: '15m',
+      change: '-2.5m',
       changeType: 'decrease',
       icon: <Clock className="w-6 h-6" />,
       color: 'bg-purple-500',
@@ -50,41 +48,96 @@ const NTTDataEntryDashboard: React.FC = () => {
   ];
 
   const recentActivities = [
-    { 
-      action: 'Student record created', 
-      user: 'You', 
-      time: '10:30 AM', 
+    {
+      action: 'Student record created',
+      user: 'You',
+      time: '10:30 AM',
       target: 'John Doe (NT2024-0156)',
       type: 'success'
     },
-    { 
-      action: 'Data verification failed', 
-      user: 'System', 
-      time: '09:45 AM', 
+    {
+      action: 'Data verification failed',
+      user: 'System',
+      time: '09:45 AM',
       target: 'Record #NT2024-0142',
       type: 'warning'
     },
-    { 
-      action: 'Bulk upload completed', 
-      user: 'You', 
-      time: 'Yesterday', 
+    {
+      action: 'Bulk upload completed',
+      user: 'You',
+      time: 'Yesterday',
       target: '25 records imported',
       type: 'success'
     },
-    { 
-      action: 'Record updated', 
-      user: 'Supervisor', 
-      time: 'Jan 14', 
+    {
+      action: 'Record updated',
+      user: 'Supervisor',
+      time: 'Jan 14',
       target: 'Sarah Johnson',
       type: 'info'
     }
   ];
 
   const performanceMetrics = [
-    { label: 'Daily Target', value: '50', current: '42', progress: 84, color: 'bg-green-500' },
-    { label: 'Weekly Target', value: '250', current: '198', progress: 79, color: 'bg-blue-500' },
-    { label: 'Monthly Target', value: '1000', current: '856', progress: 86, color: 'bg-purple-500' },
-    { label: 'Accuracy Target', value: '99%', current: '98.2%', progress: 99, color: 'bg-yellow-500' },
+    {
+      label: 'Overall Pass Rate',
+      value: '78.5%',
+      change: '+5.2%',
+      changeType: 'increase',
+      target: '80%',
+      progress: 78.5,
+      icon: <Award className="w-6 h-6" />,
+      color: 'bg-green-500'
+    },
+    {
+      label: 'Avg. Grade Score',
+      value: '2.1',
+      change: '+0.3',
+      changeType: 'increase',
+      target: '2.0',
+      progress: 70,
+      icon: <Star className="w-6 h-6" />,
+      color: 'bg-blue-500'
+    },
+    {
+      label: 'Completion Rate',
+      value: '92.4%',
+      change: '+3.1%',
+      changeType: 'increase',
+      target: '95%',
+      progress: 92.4,
+      icon: <CheckCircle className="w-6 h-6" />,
+      color: 'bg-purple-500'
+    },
+    {
+      label: 'Avg. Processing Time',
+      value: '3.2 days',
+      change: '-1.5 days',
+      changeType: 'decrease',
+      target: '2.5 days',
+      progress: 72,
+      icon: <Clock className="w-6 h-6" />,
+      color: 'bg-orange-500'
+    }
+  ];
+
+  // Monthly Trends
+  const monthlyTrends = [
+    { month: 'Jan 2024', applications: 1248, passRate: 78.5, avgGrade: 2.1 },
+    { month: 'Dec 2023', applications: 1150, passRate: 76.8, avgGrade: 2.2 },
+    { month: 'Nov 2023', applications: 1085, passRate: 75.2, avgGrade: 2.3 },
+    { month: 'Oct 2023', applications: 980, passRate: 73.5, avgGrade: 2.4 },
+    { month: 'Sep 2023', applications: 895, passRate: 72.1, avgGrade: 2.4 },
+    { month: 'Aug 2023', applications: 820, passRate: 70.5, avgGrade: 2.5 },
+  ];
+
+  // Top Performing Students
+  const topStudents = [
+    { id: 'NT2024-001', name: 'Kamal Perera', trade: 'Electrician', grade: 'grade1', score: 98, center: 'Colombo' },
+    { id: 'NT2024-004', name: 'Anil Rathnayake', trade: 'Mason', grade: 'grade1', score: 97, center: 'Colombo' },
+    { id: 'NT2024-015', name: 'Nayana Fernando', trade: 'Plumber', grade: 'grade1', score: 96, center: 'Galle' },
+    { id: 'NT2024-008', name: 'Ruwan Silva', trade: 'Carpenter', grade: 'grade1', score: 95, center: 'Kandy' },
+    { id: 'NT2024-012', name: 'Sarath Kumara', trade: 'Electrician', grade: 'grade1', score: 94, center: 'Colombo' },
   ];
 
   return (
@@ -97,7 +150,7 @@ const NTTDataEntryDashboard: React.FC = () => {
             <p className="text-gray-600 mt-2">Welcome back! Here's your data entry overview</p>
           </div>
           <div className="mt-4 md:mt-0">
-            <select 
+            <select
               className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent"
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
@@ -127,13 +180,13 @@ const NTTDataEntryDashboard: React.FC = () => {
               <p className="text-gray-600 mb-4">{stat.title}</p>
               <div className="flex items-center h-2">
                 {stat.trendData.map((value, i) => (
-                  <div 
+                  <div
                     key={i}
                     className="flex-1 mx-0.5 bg-gray-200 rounded-full overflow-hidden"
                   >
-                    <div 
+                    <div
                       className={`h-full ${stat.color.replace('bg-', 'bg-').replace('500', '400')}`}
-                      style={{ 
+                      style={{
                         height: `${(value / Math.max(...stat.trendData)) * 100}%`,
                         marginTop: 'auto'
                       }}
@@ -146,53 +199,116 @@ const NTTDataEntryDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content - Reorganized Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Performance Metrics */}
-        <div className="lg:col-span-2">
+      {/* Performance Charts Section */}
+      <div className="space-y-6 mb-8">
+        <h2 className="text-xl font-semibold text-gray-800">Performance Overview</h2>
+
+        {/* Detailed Metrics Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {performanceMetrics.map((metric, index) => (
+            <div key={index} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className={`p-3 rounded-lg ${metric.color} text-white`}>
+                  {metric.icon}
+                </div>
+                <div className={`flex items-center ${metric.changeType === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
+                  {metric.changeType === 'increase' ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                  <span className="text-sm font-medium ml-1">{metric.change}</span>
+                </div>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{metric.value}</h3>
+              <p className="text-gray-600 mb-4">{metric.label}</p>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Progress</span>
+                  <span className="font-medium text-gray-900">{metric.progress}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full ${metric.color}`}
+                    style={{ width: `${metric.progress}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Monthly Trends */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Performance Overview</h2>
-            
-            {/* Performance Metrics Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              {performanceMetrics.map((metric, index) => (
-                <div key={index} className="bg-gray-50 rounded-lg p-5 hover:bg-gray-100 transition-colors">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm font-medium text-gray-700">{metric.label}</span>
-                    <span className="text-lg font-semibold text-gray-900">
-                      {metric.current}<span className="text-sm text-gray-600">/{metric.value}</span>
-                    </span>
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-800">Monthly Performance Trends</h3>
+              <TrendingUp className="w-5 h-5 text-gray-400" />
+            </div>
+            <div className="space-y-4">
+              {monthlyTrends.map((month, index) => (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-sm text-gray-700 w-24">{month.month}</span>
+                  <div className="flex-1 mx-4">
+                    <div className="w-full bg-blue-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full"
+                        style={{ width: `${(month.passRate / 100) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2.5 mb-2">
-                    <div 
-                      className={`h-2.5 rounded-full ${metric.color}`}
-                      style={{ width: `${metric.progress}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">0%</span>
-                    <span className="font-medium text-gray-700">{metric.progress}% complete</span>
-                    <span className="text-gray-500">100%</span>
+                  <div className="text-right w-32">
+                    <div className="text-sm font-medium text-gray-900">{month.passRate}% pass</div>
+                    <div className="text-xs text-gray-500">{month.applications} students</div>
                   </div>
                 </div>
               ))}
             </div>
-            
-            {/* Performance Summary */}
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg border border-blue-100">
-              <div className="flex items-center">
-                <TrendingUp className="w-5 h-5 text-green-600 mr-3" />
-                <div>
-                  <p className="text-sm font-medium text-gray-800">You're doing great!</p>
-                  <p className="text-sm text-gray-600">You're 12% ahead of the average data entry operator</p>
+          </div>
+
+          {/* Top Students */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-800">Top Performing Students</h3>
+              <Award className="w-5 h-5 text-yellow-500" />
+            </div>
+            <div className="space-y-4">
+              {topStudents.map((student, index) => (
+                <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                  <div className="flex items-center">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${index === 0 ? 'bg-yellow-100 text-yellow-800' :
+                      index === 1 ? 'bg-gray-100 text-gray-800' :
+                        index === 2 ? 'bg-orange-100 text-orange-800' :
+                          'bg-blue-100 text-blue-800'
+                      }`}>
+                      <span className="text-sm font-bold">{index + 1}</span>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm font-medium text-gray-800">{student.name}</p>
+                      <p className="text-xs text-gray-600">{student.trade} • {student.center}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-bold text-gray-900">
+                      {student.grade === 'grade1' ? 'Grade 01' :
+                        student.grade === 'grade2' ? 'Grade 02' :
+                          student.grade === 'grade3' ? 'Grade 03' : 'N/A'}
+                    </div>
+                    <div className="text-xs text-green-600">Score: {student.score}%</div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Legacy/Other Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column - Performance Metrics (Legacy - Removed/Replaced) */}
+        <div className="hidden lg:col-span-2">
+          {/* ... */}
+        </div>
 
         {/* Right Column - Recent Activity */}
-        <div>
+        <div className="lg:col-span-3"> {/* Expanded to full width if needed, or keep tailored */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-semibold text-gray-800">Recent Activity</h2>
@@ -203,14 +319,13 @@ const NTTDataEntryDashboard: React.FC = () => {
             <div className="space-y-4">
               {recentActivities.map((activity, index) => (
                 <div key={index} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                  <div className={`p-2 rounded-full flex-shrink-0 ${
-                    activity.type === 'success' ? 'bg-green-100 text-green-600' :
+                  <div className={`p-2 rounded-full flex-shrink-0 ${activity.type === 'success' ? 'bg-green-100 text-green-600' :
                     activity.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                    'bg-blue-100 text-blue-600'
-                  }`}>
+                      'bg-blue-100 text-blue-600'
+                    }`}>
                     {activity.type === 'success' ? <CheckCircle className="w-4 h-4" /> :
-                     activity.type === 'warning' ? <AlertCircle className="w-4 h-4" /> :
-                     <FileText className="w-4 h-4" />}
+                      activity.type === 'warning' ? <AlertCircle className="w-4 h-4" /> :
+                        <FileText className="w-4 h-4" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-800 truncate">{activity.action}</p>
@@ -242,7 +357,7 @@ const NTTDataEntryDashboard: React.FC = () => {
               </div>
               <span className="text-2xl font-bold text-gray-900">856</span>
             </div>
-            
+
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg">
               <div className="flex items-center">
                 <div className="p-3 bg-yellow-100 rounded-lg mr-4">
@@ -255,7 +370,7 @@ const NTTDataEntryDashboard: React.FC = () => {
               </div>
               <span className="text-2xl font-bold text-gray-900">23</span>
             </div>
-            
+
             <div className="flex items-center justify-between p-4 bg-gradient-to-r from-red-50 to-pink-50 rounded-lg">
               <div className="flex items-center">
                 <div className="p-3 bg-red-100 rounded-lg mr-4">
@@ -292,11 +407,10 @@ const NTTDataEntryDashboard: React.FC = () => {
                   <p className="font-medium text-gray-800">{task.task}</p>
                   <p className="text-sm text-gray-600 mt-1">{task.time}</p>
                 </div>
-                <span className={`px-3 py-1 text-xs font-medium rounded-full ml-4 ${
-                  task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                <span className={`px-3 py-1 text-xs font-medium rounded-full ml-4 ${task.priority === 'high' ? 'bg-red-100 text-red-800' :
                   task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                  'bg-gray-100 text-gray-800'
-                }`}>
+                    'bg-gray-100 text-gray-800'
+                  }`}>
                   {task.priority}
                 </span>
               </div>

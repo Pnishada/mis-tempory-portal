@@ -1,383 +1,272 @@
-
-import React, { useState } from 'react';
-import { 
-  Users,  Award, TrendingUp, TrendingDown, Clock, 
-  CheckCircle, XCircle, AlertCircle, Star, Eye, ExternalLink,
-  ArrowUpRight, ArrowDownRight, BarChart3, PieChart
-} from 'lucide-react';
+import React, { useState, useMemo } from "react";
+import {
+  Users,
+  Award,
+  Star,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  TrendingUp,
+  TrendingDown,
+  Eye,
+  BarChart3,
+  PieChart,
+  ExternalLink,
+  ArrowUpRight,
+  ArrowDownRight,
+} from "lucide-react";
 
 const NTTAdminDashboard: React.FC = () => {
-  const [timeRange, setTimeRange] = useState('month');
+  const [timeRange, setTimeRange] = useState("month");
 
-  // Key Performance Indicators
-  const kpiCards = [
-    {
-      title: "Total Students",
-      value: "1,248",
-      change: "+12.5%",
-      changeType: "increase",
-      icon: <Users className="w-6 h-6" />,
-      color: "from-blue-500 to-blue-600",
-      bgColor: "bg-gradient-to-br from-blue-50 to-blue-100",
-      description: "Registered students"
-    },
-    {
-      title: "Pass Rate",
-      value: "78.5%",
-      change: "+5.2%",
-      changeType: "increase",
-      icon: <Award className="w-6 h-6" />,
-      color: "from-green-500 to-green-600",
-      bgColor: "bg-gradient-to-br from-green-50 to-green-100",
-      description: "Overall success rate"
-    },
-    {
-      title: "Avg. Grade",
-      value: "2.1",
-      change: "+0.3",
-      changeType: "increase",
-      icon: <Star className="w-6 h-6" />,
-      color: "from-purple-500 to-purple-600",
-      bgColor: "bg-gradient-to-br from-purple-50 to-purple-100",
-      description: "Average grade score"
-    },
-    {
-      title: "Processing Time",
-      value: "3.2 days",
-      change: "-1.5 days",
-      changeType: "decrease",
-      icon: <Clock className="w-6 h-6" />,
-      color: "from-orange-500 to-orange-600",
-      bgColor: "bg-gradient-to-br from-orange-50 to-orange-100",
-      description: "Average processing"
-    }
+  /* ================= MOCK DATA ================= */
+  const students = [
+    { trade: "Electrician", slccl: "pass", status: "active", center: "Colombo" },
+    { trade: "Beautician", slccl: "fail", status: "active", center: "Kandy" },
+    { trade: "Carpenter", slccl: "referred", status: "inactive", center: "Galle" },
+    { trade: "ICT Technician", slccl: "pass", status: "completed", center: "Matara" },
+    { trade: "Electrician", slccl: "pass", status: "active", center: "Colombo" },
   ];
 
-  // Student Distribution by Trade
-  const tradeDistribution = [
-    { trade: 'Electrician', students: 245, percentage: 20, color: 'bg-blue-500' },
-    { trade: 'Carpenter', students: 198, percentage: 16, color: 'bg-green-500' },
-    { trade: 'Plumber', students: 187, percentage: 15, color: 'bg-purple-500' },
-    { trade: 'Welder', students: 156, percentage: 12, color: 'bg-orange-500' },
-    { trade: 'Mason', students: 142, percentage: 11, color: 'bg-red-500' },
-    { trade: 'Other Trades', students: 320, percentage: 26, color: 'bg-gray-500' },
-  ];
+  /* ================= AGGREGATIONS ================= */
+  const stats = useMemo(() => {
+    const totalStudents = students.length;
+    const passed = students.filter((s) => s.slccl === "pass").length;
+    const passRate = ((passed / totalStudents) * 100).toFixed(1);
 
-  // Recent Activity
-  const recentActivities = [
-    {
-      type: 'success',
-      action: 'New student registered',
-      details: 'Kamal Perera - Electrician',
-      time: '10:30 AM',
-      status: 'completed'
-    },
-    {
-      type: 'warning',
-      action: 'Exam scheduled',
-      details: 'Batch #NT2024-012',
-      time: '09:45 AM',
-      status: 'pending'
-    },
-    {
-      type: 'info',
-      action: 'Results verified',
-      details: '25 students - Carpenter',
-      time: 'Yesterday',
-      status: 'completed'
-    },
-    {
-      type: 'success',
-      action: 'Certificates generated',
-      details: '18 students certified',
-      time: 'Jan 14',
-      status: 'completed'
-    }
-  ];
+    const tradeCounts: Record<string, number> = {};
+    const tradePass: Record<string, number> = {};
 
-  // Top Performing Trades
-  const topTrades = [
-    { trade: 'Mason', passRate: 85, students: 142, trend: 'up' },
-    { trade: 'Electrician', passRate: 82, students: 245, trend: 'up' },
-    { trade: 'Plumber', passRate: 80, students: 187, trend: 'stable' },
-    { trade: 'Carpenter', passRate: 75, students: 198, trend: 'stable' },
-    { trade: 'Welder', passRate: 70, students: 156, trend: 'down' },
-  ];
+    students.forEach((s) => {
+      tradeCounts[s.trade] = (tradeCounts[s.trade] || 0) + 1;
+      if (s.slccl === "pass") {
+        tradePass[s.trade] = (tradePass[s.trade] || 0) + 1;
+      }
+    });
 
-  // Performance Metrics
-  const performanceMetrics = [
-    { label: 'Data Accuracy', value: '98.2%', target: '99%', status: 'good' },
-    { label: 'Processing Efficiency', value: '92.4%', target: '95%', status: 'good' },
-    { label: 'System Uptime', value: '99.8%', target: '99.9%', status: 'excellent' },
-    { label: 'User Satisfaction', value: '4.7/5', target: '4.5/5', status: 'excellent' },
-  ];
+    const tradeDist = Object.entries(tradeCounts).map(([trade, count], i) => ({
+      trade,
+      count,
+      percent: Math.round((count / totalStudents) * 100),
+      color: ["bg-blue-500", "bg-green-500", "bg-purple-500", "bg-orange-500"][i % 4],
+    }));
 
+    const topTrades = Object.keys(tradeCounts).map((trade) => {
+      const total = tradeCounts[trade];
+      const passed = tradePass[trade] || 0;
+      const rate = Math.round((passed / total) * 100);
+      return {
+        trade,
+        rate,
+        trend: rate >= 80 ? "up" : rate >= 50 ? "stable" : "down",
+      };
+    });
+
+    return {
+      totalStudents,
+      passRate,
+      avgGrade: "2.4",
+      activeCenters: new Set(students.map((s) => s.center)).size,
+      completed: students.filter((s) => s.status === "completed").length,
+      pending: students.filter((s) => s.status === "active").length,
+      tradeDist,
+      topTrades,
+    };
+  }, []);
+
+  /* ================= UI ================= */
   return (
-    <div className="p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="mb-6">
+    <div className="p-6 space-y-8 bg-gray-50">
+
+      {/* ================= HEADER ================= */}
+      <div className="flex justify-between items-start">
+        <div>
           <h1 className="text-3xl font-bold text-gray-900">NTT Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Welcome to the National Trade Test Administration Portal</p>
+          <p className="text-sm text-gray-600 mt-1">
+            National Trade Test Administration Portal
+          </p>
         </div>
 
-        {/* Time Range Selector */}
-        <div className="flex justify-end mb-6">
-          <select 
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white"
-            value={timeRange}
-            onChange={(e) => setTimeRange(e.target.value)}
-          >
-            <option value="week">Last 7 Days</option>
-            <option value="month">Last 30 Days</option>
-            <option value="quarter">Last Quarter</option>
-            <option value="year">Last Year</option>
-          </select>
-        </div>
+        <select
+          className="border rounded-lg px-4 py-2 bg-white text-sm"
+          value={timeRange}
+          onChange={(e) => setTimeRange(e.target.value)}
+        >
+          <option value="week">Last 7 Days</option>
+          <option value="month">Last 30 Days</option>
+          <option value="quarter">Last Quarter</option>
+          <option value="year">Last Year</option>
+        </select>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {kpiCards.map((card, index) => (
-          <div key={index} className={`${card.bgColor} rounded-xl border border-gray-200 p-6 hover:shadow-lg transition-shadow duration-300`}>
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-lg bg-gradient-to-br ${card.color} text-white`}>
-                {card.icon}
-              </div>
-              <div className={`flex items-center ${card.changeType === 'increase' ? 'text-green-600' : 'text-red-600'}`}>
-                {card.changeType === 'increase' ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                <span className="text-sm font-medium ml-1">{card.change}</span>
-              </div>
+      {/* ================= KPI ROW ================= */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Students", value: stats.totalStudents, icon: Users },
+          { label: "Pass Rate", value: `${stats.passRate}%`, icon: Award },
+          { label: "Avg Grade", value: stats.avgGrade, icon: Star },
+          { label: "Active Centers", value: stats.activeCenters, icon: Clock },
+        ].map((kpi, i) => (
+          <div
+            key={i}
+            className="bg-white border rounded-xl p-5 shadow-sm min-h-[140px] flex flex-col justify-between"
+          >
+            <kpi.icon className="w-6 h-6 text-blue-600" />
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900">{kpi.value}</h3>
+              <p className="text-sm text-gray-600">{kpi.label}</p>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-1">{card.value}</h3>
-            <p className="text-gray-700 font-medium mb-1">{card.title}</p>
-            <p className="text-sm text-gray-500">{card.description}</p>
           </div>
         ))}
       </div>
 
-      {/* Main Content */}
+      {/* ================= ANALYTICS ROW ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Trade Distribution & Performance */}
+
+        {/* LEFT COLUMN */}
         <div className="lg:col-span-2 space-y-8">
-          {/* Trade Distribution */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Student Distribution by Trade</h2>
+
+          {/* TRADE DISTRIBUTION */}
+          <div className="bg-white border rounded-xl p-6 shadow-sm min-h-[300px]">
+            <div className="flex justify-between mb-4">
+              <h2 className="text-lg font-semibold">Student Distribution by Trade</h2>
               <PieChart className="w-5 h-5 text-gray-400" />
             </div>
-            
-            <div className="space-y-4">
-              {tradeDistribution.map((item, index) => (
-                <div key={index} className="space-y-2">
-                  <div className="flex justify-between">
-                    <div className="flex items-center">
-                      <div className={`w-3 h-3 rounded-full ${item.color} mr-3`}></div>
-                      <span className="text-sm font-medium text-gray-700">{item.trade}</span>
-                    </div>
-                    <span className="text-sm text-gray-600">{item.students} students ({item.percentage}%)</span>
+
+            <div className="space-y-3">
+              {stats.tradeDist.map((t, i) => (
+                <div key={i}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span>{t.trade}</span>
+                    <span>{t.count} ({t.percent}%)</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="h-2 bg-gray-200 rounded-full">
                     <div
-                      className={`h-2 rounded-full ${item.color}`}
-                      style={{ width: `${item.percentage}%` }}
+                      className={`h-2 rounded-full ${t.color}`}
+                      style={{ width: `${t.percent}%` }}
                     />
                   </div>
                 </div>
               ))}
             </div>
-            
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Total Students</span>
-                <span className="text-lg font-bold text-gray-900">1,248</span>
-              </div>
-            </div>
           </div>
 
-          {/* Performance Metrics */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">System Performance</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {performanceMetrics.map((metric, index) => (
-                <div key={index} className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">{metric.label}</span>
-                    {metric.status === 'excellent' ? (
-                      <CheckCircle className="w-4 h-4 text-green-500" />
-                    ) : metric.status === 'good' ? (
-                      <AlertCircle className="w-4 h-4 text-blue-500" />
-                    ) : (
-                      <XCircle className="w-4 h-4 text-yellow-500" />
-                    )}
+          {/* SYSTEM PERFORMANCE */}
+          <div className="bg-white border rounded-xl p-6 shadow-sm min-h-[300px]">
+            <h2 className="text-lg font-semibold mb-4">System Performance</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                { label: "Data Accuracy", value: "98.2%", icon: CheckCircle },
+                { label: "Processing Efficiency", value: "92.4%", icon: AlertCircle },
+                { label: "System Uptime", value: "99.8%", icon: CheckCircle },
+                { label: "User Satisfaction", value: "4.7/5", icon: CheckCircle },
+              ].map((m, i) => (
+                <div key={i} className="border rounded-lg p-4">
+                  <div className="flex justify-between items-center mb-1">
+                    <p className="text-sm text-gray-600">{m.label}</p>
+                    <m.icon className="w-4 h-4 text-green-500" />
                   </div>
-                  <div className="flex items-baseline">
-                    <span className="text-2xl font-bold text-gray-900">{metric.value}</span>
-                    <span className="text-sm text-gray-600 ml-2">Target: {metric.target}</span>
-                  </div>
-                  <div className="mt-2 w-full bg-gray-200 rounded-full h-1.5">
-                    <div 
-                      className={`h-1.5 rounded-full ${
-                        metric.status === 'excellent' ? 'bg-green-500' :
-                        metric.status === 'good' ? 'bg-blue-500' : 'bg-yellow-500'
-                      }`}
-                      style={{ 
-                        width: metric.status === 'excellent' ? '95%' :
-                               metric.status === 'good' ? '85%' : '70%'
-                      }}
-                    />
-                  </div>
+                  <p className="text-xl font-bold">{m.value}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Right Column - Recent Activity & Top Trades */}
+        {/* RIGHT COLUMN */}
         <div className="space-y-8">
-          {/* Recent Activity */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-800">Recent Activity</h2>
-              <div className="flex items-center text-gray-400">
-                <span className="text-sm mr-2">Last 24h</span>
-                <Clock className="w-4 h-4" />
+
+          {/* RECENT ACTIVITY */}
+          <div className="bg-white border rounded-xl p-6 shadow-sm min-h-[260px]">
+            <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+            {students.slice(0, 4).map((_, i) => (
+              <div key={i} className="flex items-center text-sm mb-3">
+                <Eye className="w-4 h-4 text-blue-500 mr-2" />
+                New student activity recorded
               </div>
-            </div>
-            
-            <div className="space-y-4">
-              {recentActivities.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3">
-                  <div className={`p-2 rounded-full ${
-                    activity.type === 'success' ? 'bg-green-100 text-green-600' :
-                    activity.type === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                    'bg-blue-100 text-blue-600'
-                  }`}>
-                    {activity.type === 'success' ? <CheckCircle className="w-4 h-4" /> :
-                     activity.type === 'warning' ? <AlertCircle className="w-4 h-4" /> :
-                     <Eye className="w-4 h-4" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{activity.action}</p>
-                    <p className="text-xs text-gray-600 truncate">{activity.details}</p>
-                    <div className="flex items-center mt-1">
-                      <span className="text-xs text-gray-500">{activity.time}</span>
-                      <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
-                        activity.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {activity.status}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            ))}
           </div>
 
-          {/* Top Performing Trades */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Top Performing Trades</h2>
-            
-            <div className="space-y-4">
-              {topTrades.map((trade, index) => (
-                <div key={index} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
-                  <div className="flex items-center">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                      index === 0 ? 'bg-yellow-100 text-yellow-800' :
-                      index === 1 ? 'bg-gray-100 text-gray-800' :
-                      index === 2 ? 'bg-orange-100 text-orange-800' :
-                      'bg-blue-100 text-blue-800'
-                    }`}>
-                      <span className="text-sm font-bold">{index + 1}</span>
-                    </div>
-                    <div className="ml-3">
-                      <p className="text-sm font-medium text-gray-800">{trade.trade}</p>
-                      <p className="text-xs text-gray-600">{trade.students} students</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center justify-end">
-                      <span className="text-sm font-bold text-gray-900 mr-2">{trade.passRate}%</span>
-                      {trade.trend === 'up' ? (
-                        <TrendingUp className="w-4 h-4 text-green-600" />
-                      ) : trade.trend === 'down' ? (
-                        <TrendingDown className="w-4 h-4 text-red-600" />
-                      ) : (
-                        <BarChart3 className="w-4 h-4 text-gray-400" />
-                      )}
-                    </div>
-                    <span className="text-xs text-gray-500">pass rate</span>
-                  </div>
+          {/* TOP TRADES */}
+          <div className="bg-white border rounded-xl p-6 shadow-sm min-h-[260px]">
+            <h2 className="text-lg font-semibold mb-4">Top Performing Trades</h2>
+            {stats.topTrades.map((t, i) => (
+              <div key={i} className="flex justify-between items-center mb-2">
+                <span className="text-sm">{t.trade}</span>
+                <div className="flex items-center text-sm">
+                  <span className="font-medium mr-2">{t.rate}%</span>
+                  {t.trend === "up" ? (
+                    <TrendingUp className="w-4 h-4 text-green-600" />
+                  ) : (
+                    <TrendingDown className="w-4 h-4 text-red-600" />
+                  )}
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-100 rounded-xl p-6">
-            <div className="flex items-center mb-4">
-              <BarChart3 className="w-6 h-6 text-blue-600 mr-3" />
-              <h2 className="text-xl font-semibold text-gray-800">Quick Stats</h2>
-            </div>
-            
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Certified Students</span>
-                <span className="text-sm font-medium text-gray-900">975</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Pending Review</span>
-                <span className="text-sm font-medium text-gray-900">48</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Exams This Week</span>
-                <span className="text-sm font-medium text-gray-900">12</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-700">Active Centers</span>
-                <span className="text-sm font-medium text-gray-900">5</span>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* Monthly Performance Trend */}
-      <div className="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-800">Monthly Performance Trend</h2>
-            <p className="text-sm text-gray-600 mt-1">Pass rate trend over the last 6 months</p>
-          </div>
-          <ExternalLink className="w-5 h-5 text-gray-400" />
-        </div>
+      {/* ================= PERFORMANCE ROW ================= */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        <div className="space-y-4">
-          {[
-            { month: 'Jan', passRate: 78.5, applications: 1248 },
-            { month: 'Dec', passRate: 76.8, applications: 1150 },
-            { month: 'Nov', passRate: 75.2, applications: 1085 },
-            { month: 'Oct', passRate: 73.5, applications: 980 },
-            { month: 'Sep', passRate: 72.1, applications: 895 },
-            { month: 'Aug', passRate: 70.5, applications: 820 },
-          ].map((data, index) => (
-            <div key={index} className="flex items-center">
-              <span className="text-sm text-gray-700 w-12">{data.month}</span>
-              <div className="flex-1 mx-4">
-                <div className="w-full bg-gray-200 rounded-full h-3">
+        {/* MONTHLY TREND */}
+        <div className="lg:col-span-2 bg-white border rounded-xl p-6 shadow-sm min-h-[300px]">
+          <div className="flex justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold">Monthly Performance Trend</h2>
+              <p className="text-xs text-gray-500">Last 6 months</p>
+            </div>
+            <ExternalLink className="w-4 h-4 text-gray-400" />
+          </div>
+
+          <div className="space-y-3">
+            {[
+              { m: "Jan", v: 78 },
+              { m: "Dec", v: 76 },
+              { m: "Nov", v: 75 },
+              { m: "Oct", v: 73 },
+              { m: "Sep", v: 72 },
+              { m: "Aug", v: 70 },
+            ].map((d, i) => (
+              <div key={i} className="flex items-center">
+                <span className="w-10 text-sm">{d.m}</span>
+                <div className="flex-1 mx-3 h-2 bg-gray-200 rounded-full">
                   <div
-                    className="h-3 rounded-full bg-gradient-to-r from-blue-500 to-green-500"
-                    style={{ width: `${data.passRate}%` }}
+                    className="h-2 bg-gradient-to-r from-blue-500 to-green-500 rounded-full"
+                    style={{ width: `${d.v}%` }}
                   />
                 </div>
+                <span className="w-12 text-right text-sm font-medium">{d.v}%</span>
               </div>
-              <div className="text-right w-24">
-                <div className="text-sm font-medium text-gray-900">{data.passRate}%</div>
-                <div className="text-xs text-gray-500">{data.applications} students</div>
-              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* QUICK STATS */}
+        <div className="bg-gradient-to-r from-blue-50 to-green-50 border rounded-xl p-6 min-h-[300px]">
+          <h2 className="text-lg font-semibold mb-4 flex items-center">
+            <BarChart3 className="w-5 h-5 mr-2" /> Quick Stats
+          </h2>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span>Certified Students</span>
+              <span className="font-medium">{stats.completed}</span>
             </div>
-          ))}
+            <div className="flex justify-between">
+              <span>Active Students</span>
+              <span className="font-medium">{stats.pending}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Total Trades</span>
+              <span className="font-medium">{stats.tradeDist.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Active Centers</span>
+              <span className="font-medium">{stats.activeCenters}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

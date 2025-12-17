@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
+import {
   BarChart3, PieChart, Download, Filter, FileText, TrendingUp, Award, Users,
-  Printer, Share2, Eye, CheckCircle, Calendar, Clock, Search, Settings, 
+  Printer, Share2, Eye, CheckCircle, Calendar, Clock, Search, Settings,
 } from 'lucide-react';
 
 const NTTResultsReports: React.FC = () => {
@@ -12,34 +12,34 @@ const NTTResultsReports: React.FC = () => {
   const [selectedResults, setSelectedResults] = useState<string[]>([]);
 
   const mainStats = [
-    { 
-      label: 'Total Tests Conducted', 
-      value: '1,248', 
-      change: '+12%', 
+    {
+      label: 'Total Tests Conducted',
+      value: '1,248',
+      change: '+12%',
       changeType: 'increase',
       icon: <FileText className="w-6 h-6" />,
       color: 'bg-blue-500'
     },
-    { 
-      label: 'Overall Pass Rate', 
-      value: '78.5%', 
-      change: '+5.2%', 
+    {
+      label: 'Overall Pass Rate',
+      value: '78.5%',
+      change: '+5.2%',
       changeType: 'increase',
       icon: <Award className="w-6 h-6" />,
       color: 'bg-green-500'
     },
-    { 
-      label: 'Avg. Processing Time', 
-      value: '3.2 days', 
-      change: '-1.5 days', 
+    {
+      label: 'Avg. Processing Time',
+      value: '3.2 days',
+      change: '-1.5 days',
       changeType: 'decrease',
       icon: <Clock className="w-6 h-6" />,
       color: 'bg-purple-500'
     },
-    { 
-      label: 'Certified Students', 
-      value: '975', 
-      change: '+48', 
+    {
+      label: 'Certified Students',
+      value: '975',
+      change: '+48',
       changeType: 'increase',
       icon: <Users className="w-6 h-6" />,
       color: 'bg-orange-500'
@@ -74,12 +74,12 @@ const NTTResultsReports: React.FC = () => {
   ];
 
   const recentResults = [
-    { id: 'NT2024-001', name: 'Kamal Perera', trade: 'Electrician', grade: '1', slccl: 'Pass', date: '2024-01-15', center: 'Colombo' },
-    { id: 'NT2024-002', name: 'Nimal Silva', trade: 'Carpenter', grade: '2', slccl: 'Pass', date: '2024-01-14', center: 'Kandy' },
-    { id: 'NT2024-003', name: 'Sunil Fernando', trade: 'Plumber', grade: '3', slccl: 'Pass', date: '2024-01-13', center: 'Galle' },
-    { id: 'NT2024-004', name: 'Anil Rathnayake', trade: 'Mason', grade: '1', slccl: 'Pass', date: '2024-01-12', center: 'Colombo' },
-    { id: 'NT2024-005', name: 'Sarath Bandara', trade: 'Welder', grade: '2', slccl: 'Fail', date: '2024-01-11', center: 'Kurunegala' },
-    { id: 'NT2024-006', name: 'Priyantha Jayasuriya', trade: 'Electrician', grade: '1', slccl: 'Pass', date: '2024-01-10', center: 'Colombo' },
+    { id: 'NT2024-001', name: 'Kamal Perera', trade: 'Electrician', grade: 'grade1', slccl: 'pass', date: '2024-01-15', center: 'Colombo' },
+    { id: 'NT2024-002', name: 'Nimal Silva', trade: 'Carpenter', grade: 'grade2', slccl: 'pass', date: '2024-01-14', center: 'Kandy' },
+    { id: 'NT2024-003', name: 'Sunil Fernando', trade: 'Plumber', grade: 'grade3', slccl: 'pass', date: '2024-01-13', center: 'Galle' },
+    { id: 'NT2024-004', name: 'Anil Rathnayake', trade: 'Mason', grade: 'grade1', slccl: 'pass', date: '2024-01-12', center: 'Colombo' },
+    { id: 'NT2024-005', name: 'Sarath Bandara', trade: 'Welder', grade: 'grade2', slccl: 'fail', date: '2024-01-11', center: 'Kurunegala' },
+    { id: 'NT2024-006', name: 'Priyantha Jayasuriya', trade: 'Electrician', grade: 'grade1', slccl: 'pass', date: '2024-01-10', center: 'Colombo' },
   ];
 
   const monthlyTrends = [
@@ -112,7 +112,7 @@ const NTTResultsReports: React.FC = () => {
   };
 
   const renderReportContent = () => {
-    switch(selectedReport) {
+    switch (selectedReport) {
       case 'overview':
         return (
           <div className="space-y-6">
@@ -293,13 +293,12 @@ const NTTResultsReports: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          center.passRate >= 80 ? 'bg-green-100 text-green-800' :
-                          center.passRate >= 75 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${center.passRate >= 80 ? 'bg-green-100 text-green-800' :
+                            center.passRate >= 75 ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                          }`}>
                           {center.passRate >= 80 ? 'Excellent' :
-                           center.passRate >= 75 ? 'Good' : 'Needs Improvement'}
+                            center.passRate >= 75 ? 'Good' : 'Needs Improvement'}
                         </span>
                       </td>
                     </tr>
@@ -355,19 +354,19 @@ const NTTResultsReports: React.FC = () => {
                         <div className="text-sm text-gray-900">{result.trade}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          result.grade === '1' ? 'bg-green-100 text-green-800' :
-                          result.grade === '2' ? 'bg-blue-100 text-blue-800' :
-                          'bg-yellow-100 text-yellow-800'
-                        }`}>
-                          Grade {result.grade}
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${result.grade === 'grade1' ? 'bg-green-100 text-green-800' :
+                            result.grade === 'grade2' ? 'bg-blue-100 text-blue-800' :
+                              'bg-yellow-100 text-yellow-800'
+                          }`}>
+                          {result.grade === 'grade1' ? 'Grade 01' :
+                            result.grade === 'grade2' ? 'Grade 02' :
+                              result.grade === 'grade3' ? 'Grade 03' : 'N/A'}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          result.slccl === 'Pass' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                        }`}>
-                          {result.slccl}
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${result.slccl === 'pass' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                          {result.slccl.charAt(0).toUpperCase() + result.slccl.slice(1)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -418,7 +417,7 @@ const NTTResultsReports: React.FC = () => {
                 <option value="year">Last Year</option>
               </select>
             </div>
-            <button 
+            <button
               onClick={handleExport}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center"
             >
@@ -508,7 +507,7 @@ const NTTResultsReports: React.FC = () => {
               <button className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">
                 Export Selected
               </button>
-              <button 
+              <button
                 onClick={() => setSelectedResults([])}
                 className="px-4 py-2 text-gray-600 hover:text-gray-800 text-sm"
               >
