@@ -42,6 +42,7 @@ import InstructorAttendance from "../cbt_pages/InstructorDashboard/InstructorAtt
 // NTT ADMIN
 import NTTAdminDashboard from "../ntt_pages/AdminDashbords/NTTAdminDashboard";
 import NTTStudentPerformance from "../ntt_pages/AdminDashbords/NTTStudentPerformance";
+import NTTModules from "../ntt_pages/AdminDashbords/ModulesAdminPage";
 import NTTResultsReports from "../ntt_pages/AdminDashbords/NTTResultsReports";
 
 // NTT DATA ENTRY
@@ -141,6 +142,7 @@ const Dashboard = () => {
       if (p === "/dashboard/ntt-admin") return <NTTAdminDashboard />;
       if (p === "/dashboard/ntt-admin/users") return <Users />;
       if (p === "/dashboard/ntt-admin/student-performance") return <NTTStudentPerformance />;
+      if (p === "/dashboard/ntt-admin/modules") return <NTTModules />;
       if (p === "/dashboard/ntt-admin/reports") return <NTTResultsReports />;
     }
 

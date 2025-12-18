@@ -66,6 +66,7 @@ const SharedNavbar: React.FC<NavbarProps> = ({ userRole, userName, children }) =
           { path: '/dashboard/ntt-admin', label: 'Overview', icon: '📊' },
           { path: '/dashboard/ntt-admin/users', label: 'Users', icon: '👥' },
           { path: '/dashboard/ntt-admin/student-performance', label: 'Student Performance', icon: '📚' },
+          {path: '/dashboard/ntt-admin/modules', label: 'Modules', icon: '📦' },
           { path: '/dashboard/ntt-admin/reports', label: 'Reports', icon: '📈' },
         ];
       case 'ntt_data_entry':
